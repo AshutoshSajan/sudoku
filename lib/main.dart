@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'screens/home_screen.dart';
 import 'theme/app_theme.dart';
 
@@ -21,7 +22,8 @@ class _SudokuAppState extends State<SudokuApp> {
 
   void _toggleTheme() {
     setState(() {
-      final isDark = _themeMode == ThemeMode.dark ||
+      final isDark =
+          _themeMode == ThemeMode.dark ||
           (_themeMode == ThemeMode.system &&
               WidgetsBinding.instance.platformDispatcher.platformBrightness ==
                   Brightness.dark);
