@@ -33,8 +33,12 @@ pick `extension/`.
 
 ```sh
 npx web-ext sign --source-dir=extension \
+  --amo-metadata extension/amo-metadata.json \
   --api-key <KEY> --api-secret <SECRET> --channel listed
 ```
+
+(`amo-metadata.json` carries the license/summary/categories AMO requires
+for a first listed version.)
 
 `--channel listed` publishes publicly; use `unlisted` for a signed
 self-distributed `.xpi`. Temporary add-ons stop working on browser

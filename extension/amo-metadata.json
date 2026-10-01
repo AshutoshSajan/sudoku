@@ -6,10 +6,10 @@
     "en-US": "A beautiful Sudoku puzzle game — 4 difficulties, notes, hints, undo, dark mode."
   },
   "categories": {
-    "firefox": ["games"]
+    "firefox": ["games-entertainment"]
   },
   "version": {
-    "license": "GPL-3.0-or-later",
+    "license": "GPL-3.0-only",
     "release_notes": {
       "en-US": "Initial release."
     }
