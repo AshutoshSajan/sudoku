@@ -4,17 +4,50 @@ import 'package:flutter/material.dart';
 
 /// Difficulty levels with their display properties and removal counts.
 enum Difficulty {
-  easy('Easy', 30, 'Perfect for beginners', Color(0xFF4CAF50), Icons.sentiment_satisfied_alt),
-  medium('Medium', 40, 'A balanced challenge', Color(0xFFFFA726), Icons.trending_up),
-  hard('Hard', 50, 'For experienced players', Color(0xFFEF5350), Icons.local_fire_department),
-  expert('Expert', 55, 'Only for the brave', Color(0xFFAB47BC), Icons.bolt);
+  easy(
+    'Easy',
+    30,
+    'Perfect for beginners',
+    Color(0xFF4CAF50),
+    Icons.sentiment_satisfied_alt,
+  ),
+  medium(
+    'Medium',
+    40,
+    'A balanced challenge',
+    Color(0xFFFFA726),
+    Icons.trending_up,
+  ),
+  hard(
+    'Hard',
+    50,
+    'Experienced players · No hints',
+    Color(0xFFEF5350),
+    Icons.local_fire_department,
+  ),
+  expert(
+    'Expert',
+    55,
+    'Only for the brave · No hints',
+    Color(0xFFAB47BC),
+    Icons.bolt,
+  );
 
   final String label;
   final int cellsToRemove;
   final String description;
   final Color color;
   final IconData icon;
-  const Difficulty(this.label, this.cellsToRemove, this.description, this.color, this.icon);
+  const Difficulty(
+    this.label,
+    this.cellsToRemove,
+    this.description,
+    this.color,
+    this.icon,
+  );
+
+  /// Hints are only available on easier levels.
+  bool get allowsHints => this == Difficulty.easy || this == Difficulty.medium;
 }
 
 /// Represents a single undoable action.
@@ -49,13 +82,14 @@ class SudokuGame {
   bool isCompleted = false;
   bool isGameOver = false;
   final Difficulty difficulty;
-  int hintsRemaining = 3;
+  int hintsRemaining;
 
   final List<CellAction> _undoStack = [];
   final Stopwatch _stopwatch = Stopwatch();
   final Random _random = Random();
 
-  SudokuGame(this.difficulty) {
+  SudokuGame(this.difficulty)
+    : hintsRemaining = difficulty.allowsHints ? 3 : 0 {
     _generateNewGame();
   }
 
@@ -144,7 +178,9 @@ class SudokuGame {
     if (hintsRemaining <= 0) return false;
     if (selectedRow == -1 || selectedCol == -1) return false;
     if (given[selectedRow][selectedCol]) return false;
-    if (board[selectedRow][selectedCol] == solution[selectedRow][selectedCol]) return false;
+    if (board[selectedRow][selectedCol] == solution[selectedRow][selectedCol]) {
+      return false;
+    }
 
     final val = solution[selectedRow][selectedCol];
     board[selectedRow][selectedCol] = val;
@@ -186,19 +222,23 @@ class SudokuGame {
   bool isSameNumber(int row, int col) {
     if (selectedRow == -1 || selectedCol == -1) return false;
     final selVal = board[selectedRow][selectedCol];
-    return selVal != 0 && board[row][col] == selVal && !(row == selectedRow && col == selectedCol);
+    return selVal != 0 &&
+        board[row][col] == selVal &&
+        !(row == selectedRow && col == selectedCol);
   }
 
   // ── Private helpers ────────────────────────────────────────────────
 
   void _pushUndo({required int num}) {
-    _undoStack.add(CellAction(
-      row: selectedRow,
-      col: selectedCol,
-      previousValue: board[selectedRow][selectedCol],
-      newValue: num,
-      previousNotes: Set.from(notes[selectedRow][selectedCol]),
-    ));
+    _undoStack.add(
+      CellAction(
+        row: selectedRow,
+        col: selectedCol,
+        previousValue: board[selectedRow][selectedCol],
+        newValue: num,
+        previousNotes: Set.from(notes[selectedRow][selectedCol]),
+      ),
+    );
   }
 
   void _checkCompletion() {
@@ -303,6 +343,7 @@ class SudokuGame {
       }
       count++;
     }
+
     inner(grid.map((row) => List<int>.from(row)).toList());
     return count;
   }

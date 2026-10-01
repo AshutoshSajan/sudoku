@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../models/sudoku_game.dart';
 import '../widgets/sudoku_board.dart';
 import '../widgets/number_pad.dart';
@@ -96,10 +98,14 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       final success = game.hint();
       if (!success && game.hintsRemaining <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No hints remaining'),
+          SnackBar(
+            content: Text(
+              game.difficulty.allowsHints
+                  ? 'No hints remaining'
+                  : 'Hints are disabled on ${game.difficulty.label}',
+            ),
             behavior: SnackBarBehavior.floating,
-            duration: Duration(seconds: 1),
+            duration: const Duration(seconds: 1),
           ),
         );
       }
@@ -180,98 +186,128 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     }
 
     return Scaffold(
+      // LayoutBuilder + scroll fallback: the board shrinks to fit short
+      // windows (e.g. a resized web app) and the column scrolls if the
+      // window gets too small, so the full board stays reachable.
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: [
-              // ── Header ──
-              GameHeader(
-                difficulty: game.difficulty,
-                formattedTime: game.formattedTime,
-                mistakes: game.mistakes,
-                maxMistakes: SudokuGame.maxMistakes,
-                isPaused: game.isPaused,
-                onPause: _togglePause,
-                onBack: _goBack,
-              ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Vertical space taken by header + controls + spacing.
+            const reservedHeight = 330.0;
+            const maxContentWidth = 560.0;
+            const minBoardSize = 260.0;
 
-              const Spacer(flex: 1),
+            final contentWidth = (constraints.maxWidth - 32)
+                .clamp(0.0, maxContentWidth)
+                .toDouble();
+            final boardSize = min(
+              contentWidth,
+              constraints.maxHeight - reservedHeight,
+            ).clamp(minBoardSize, maxContentWidth).toDouble();
 
-              // ── Board ──
-              if (game.isPaused)
-                AspectRatio(
-                  aspectRatio: 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(60),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.pause_circle_outline_rounded,
-                            size: 48,
-                            color: Theme.of(context).colorScheme.onSurface.withAlpha(100),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Game Paused',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          FilledButton.tonal(
-                            onPressed: _togglePause,
-                            child: const Text('Resume'),
-                          ),
-                        ],
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Center(
+                child: SizedBox(
+                  width: contentWidth,
+                  child: Column(
+                    children: [
+                      // ── Header ──
+                      GameHeader(
+                        difficulty: game.difficulty,
+                        formattedTime: game.formattedTime,
+                        mistakes: game.mistakes,
+                        maxMistakes: SudokuGame.maxMistakes,
+                        isPaused: game.isPaused,
+                        onPause: _togglePause,
+                        onBack: _goBack,
                       ),
-                    ),
+
+                      const SizedBox(height: 12),
+
+                      // ── Board ──
+                      SizedBox.square(
+                        dimension: boardSize,
+                        child: game.isPaused
+                            ? _buildPausedPlaceholder(context)
+                            : SudokuBoard(
+                                board: game.board,
+                                given: game.given,
+                                notes: game.notes,
+                                selectedRow: game.selectedRow,
+                                selectedCol: game.selectedCol,
+                                hasError: game.hasError,
+                                isInSameGroup: game.isInSameGroup,
+                                isSameNumber: game.isSameNumber,
+                                onCellTap: _selectCell,
+                              ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // ── Action Bar ──
+                      ActionBar(
+                        onUndo: _undo,
+                        onErase: _erase,
+                        onToggleNotes: _toggleNotes,
+                        onHint: _hint,
+                        isNotesActive: game.isNotesMode,
+                        canUndo: game.canUndo,
+                        hintsRemaining: game.hintsRemaining,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // ── Number Pad ──
+                      NumberPad(
+                        onNumberSelected: _setNumber,
+                        getRemainingCount: game.getRemainingCount,
+                      ),
+
+                      const SizedBox(height: 8),
+                    ],
                   ),
-                )
-              else
-                SudokuBoard(
-                  board: game.board,
-                  given: game.given,
-                  notes: game.notes,
-                  selectedRow: game.selectedRow,
-                  selectedCol: game.selectedCol,
-                  hasError: game.hasError,
-                  isInSameGroup: game.isInSameGroup,
-                  isSameNumber: game.isSameNumber,
-                  onCellTap: _selectCell,
                 ),
-
-              const SizedBox(height: 24),
-
-              // ── Action Bar ──
-              ActionBar(
-                onUndo: _undo,
-                onErase: _erase,
-                onToggleNotes: _toggleNotes,
-                onHint: _hint,
-                isNotesActive: game.isNotesMode,
-                canUndo: game.canUndo,
-                hintsRemaining: game.hintsRemaining,
               ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 
-              const SizedBox(height: 20),
-
-              // ── Number Pad ──
-              NumberPad(
-                onNumberSelected: _setNumber,
-                getRemainingCount: game.getRemainingCount,
+  /// Placeholder shown when the game is paused (kept square by its parent).
+  Widget _buildPausedPlaceholder(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest
+            .withAlpha(60),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.pause_circle_outline_rounded,
+              size: 48,
+              color: Theme.of(context).colorScheme.onSurface.withAlpha(100),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Game Paused',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
               ),
-
-              const Spacer(flex: 2),
-            ],
-          ),
+            ),
+            const SizedBox(height: 8),
+            FilledButton.tonal(
+              onPressed: _togglePause,
+              child: const Text('Resume'),
+            ),
+          ],
         ),
       ),
     );
