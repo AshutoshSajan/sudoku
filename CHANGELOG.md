@@ -25,6 +25,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Update changelog [skip ci] ([ddb193c](https://github.com/AshutoshSajan/sudoku/commit/ddb193c17fe2e485031d3ae68b266f9f34730538))
 - Update changelog [skip ci] ([b0dba28](https://github.com/AshutoshSajan/sudoku/commit/b0dba28d0d522da33858d4ae1503e2c008e44165))
 - Update changelog [skip ci] ([ae89c97](https://github.com/AshutoshSajan/sudoku/commit/ae89c979778687019a421b3b9352a3bc0c4ca0e8))
+- Update changelog [skip ci] ([8ef925f](https://github.com/AshutoshSajan/sudoku/commit/8ef925f735de41e6a7ab36338920134ea95aae6d))
 
 ### Miscellaneous
 
@@ -36,6 +37,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 - Enable Firefox add-on auto-publishing on main ([ee424e2](https://github.com/AshutoshSajan/sudoku/commit/ee424e2b0637dc139b9eec388ae1942d4dec3213))
 - Auto-bump extension version on every store publish ([a0e4874](https://github.com/AshutoshSajan/sudoku/commit/a0e4874ab0ad1284d0766b65b13f9d3303cfb8ca))
+- Submit Firefox listed versions without waiting for review ([09f225b](https://github.com/AshutoshSajan/sudoku/commit/09f225bf0af9967cbf9784c7b4f19bef3fa9105c))
 
 ## [1.1.0] - 2026-10-01
 
