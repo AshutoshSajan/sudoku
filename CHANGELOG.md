@@ -5,6 +5,10 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ## [unreleased]
 
+### Features
+
+- *(fdroid)* Fastlane metadata and submission recipe draft ([5f746d0](https://github.com/AshutoshSajan/sudoku/commit/5f746d000fb04301d04c2e13bc68c513455f0c30))
+
 ### Bug Fixes
 
 - *(extension)* Valid AMO license and category slugs ([d3eef74](https://github.com/AshutoshSajan/sudoku/commit/d3eef747234868e3baf3a4791a881b06d8698531))
@@ -15,10 +19,12 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Sync generated changelog ([c6a2abb](https://github.com/AshutoshSajan/sudoku/commit/c6a2abbab9b3c121796b6256b1bc11bf100a6bf0))
 - Update changelog [skip ci] ([0155b68](https://github.com/AshutoshSajan/sudoku/commit/0155b68e5c3443eb5f51fa37db0f6ec6f6821d9a))
 - Update changelog [skip ci] ([56d96ab](https://github.com/AshutoshSajan/sudoku/commit/56d96ab83d4967729720d0df6e997152a10f3bba))
+- Update changelog [skip ci] ([2dc5e25](https://github.com/AshutoshSajan/sudoku/commit/2dc5e25edb612129bcdf0bbc1e2c684965b92309))
 
 ### Miscellaneous
 
 - *(extension)* Add AMO listing metadata for Firefox sign ([b860a3f](https://github.com/AshutoshSajan/sudoku/commit/b860a3f815c30c5e8970162f17b055cff445dc20))
+- *(extension)* V1.1.0 metadata, slugs, readme polish ([494129a](https://github.com/AshutoshSajan/sudoku/commit/494129ad558887c15e77702e4dbf947759d533b7))
 
 ## [1.1.0] - 2026-10-01
 
