@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_theme.dart';
 
 /// A modern 9×9 Sudoku board with rounded corners, 3×3 box borders,
@@ -40,7 +41,9 @@ class SudokuBoard extends StatelessWidget {
           border: Border.all(color: colors.boxBorder, width: 2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(Theme.of(context).brightness == Brightness.dark ? 40 : 20),
+              color: Colors.black.withAlpha(
+                Theme.of(context).brightness == Brightness.dark ? 40 : 20,
+              ),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -66,7 +69,12 @@ class SudokuBoard extends StatelessWidget {
     );
   }
 
-  Widget _buildCell(BuildContext context, int row, int col, BoardColors colors) {
+  Widget _buildCell(
+    BuildContext context,
+    int row,
+    int col,
+    BoardColors colors,
+  ) {
     final value = board[row][col];
     final isGiven = given[row][col];
     final isSelected = (row == selectedRow && col == selectedCol);
@@ -94,13 +102,13 @@ class SudokuBoard extends StatelessWidget {
       right: col == 8
           ? BorderSide.none
           : (col + 1) % 3 == 0
-              ? BorderSide(color: colors.boxBorder, width: 1.5)
-              : BorderSide(color: colors.cellBorder, width: 0.5),
+          ? BorderSide(color: colors.boxBorder, width: 1.5)
+          : BorderSide(color: colors.cellBorder, width: 0.5),
       bottom: row == 8
           ? BorderSide.none
           : (row + 1) % 3 == 0
-              ? BorderSide(color: colors.boxBorder, width: 1.5)
-              : BorderSide(color: colors.cellBorder, width: 0.5),
+          ? BorderSide(color: colors.boxBorder, width: 1.5)
+          : BorderSide(color: colors.cellBorder, width: 0.5),
     );
 
     // Determine text style
@@ -112,8 +120,8 @@ class SudokuBoard extends StatelessWidget {
         color: isGiven
             ? colors.givenText
             : error
-                ? colors.errorText
-                : colors.userText,
+            ? colors.errorText
+            : colors.userText,
       );
     }
 
@@ -127,8 +135,8 @@ class SudokuBoard extends StatelessWidget {
         child: value != 0
             ? Text('$value', style: textStyle)
             : cellNotes.isNotEmpty
-                ? _buildNotes(cellNotes, colors)
-                : null,
+            ? _buildNotes(cellNotes, colors)
+            : null,
       ),
     );
   }
