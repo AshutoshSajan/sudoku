@@ -5,15 +5,46 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ## [unreleased]
 
+### Features
+
+- *(fdroid)* Fastlane metadata and submission recipe draft ([5f746d0](https://github.com/AshutoshSajan/sudoku/commit/5f746d000fb04301d04c2e13bc68c513455f0c30))
+- *(save)* Autosave game with resume from home screen ([f666b11](https://github.com/AshutoshSajan/sudoku/commit/f666b115a790d8255e793487973981c622af505a))
+
+### Bug Fixes
+
+- *(extension)* Valid AMO license and category slugs ([d3eef74](https://github.com/AshutoshSajan/sudoku/commit/d3eef747234868e3baf3a4791a881b06d8698531))
+
 ### Documentation
 
+- Update changelog [skip ci] ([3f107ba](https://github.com/AshutoshSajan/sudoku/commit/3f107bab9f01b8a7c48dac39ce3e3c1af5350a51))
+- Sync generated changelog ([c6a2abb](https://github.com/AshutoshSajan/sudoku/commit/c6a2abbab9b3c121796b6256b1bc11bf100a6bf0))
+- Update changelog [skip ci] ([0155b68](https://github.com/AshutoshSajan/sudoku/commit/0155b68e5c3443eb5f51fa37db0f6ec6f6821d9a))
+- Update changelog [skip ci] ([56d96ab](https://github.com/AshutoshSajan/sudoku/commit/56d96ab83d4967729720d0df6e997152a10f3bba))
+- Update changelog [skip ci] ([2dc5e25](https://github.com/AshutoshSajan/sudoku/commit/2dc5e25edb612129bcdf0bbc1e2c684965b92309))
+- Update changelog [skip ci] ([8c8f675](https://github.com/AshutoshSajan/sudoku/commit/8c8f6755bf3b63c1781efda92d157c7b507e3586))
+
+### Miscellaneous
+
+- *(extension)* Add AMO listing metadata for Firefox sign ([b860a3f](https://github.com/AshutoshSajan/sudoku/commit/b860a3f815c30c5e8970162f17b055cff445dc20))
+- *(extension)* V1.1.0 metadata, slugs, readme polish ([494129a](https://github.com/AshutoshSajan/sudoku/commit/494129ad558887c15e77702e4dbf947759d533b7))
+
+## [1.1.0] - 2026-10-01
+
+### Documentation
+
+- Update changelog [skip ci] ([fffc74f](https://github.com/AshutoshSajan/sudoku/commit/fffc74ffd4564851d053cd00abef425af8984bc0))
 - Add generated changelog ([1b3208a](https://github.com/AshutoshSajan/sudoku/commit/1b3208ac07b51b598a4074aeecd1973c07b29e45))
 - Resolve changelog conflict using main copy ([cf1be09](https://github.com/AshutoshSajan/sudoku/commit/cf1be09f311a2701581c22235df4f5be74931824))
-- Sync generated changelog ([c6a2abb](https://github.com/AshutoshSajan/sudoku/commit/c6a2abbab9b3c121796b6256b1bc11bf100a6bf0))
 
 ### Miscellaneous
 
 - *(release)* GPL-3.0 license, web-ext ignores, bump to 1.1.0 ([6db1e80](https://github.com/AshutoshSajan/sudoku/commit/6db1e80df98f9183d4c644f6a68b5129406a39ac))
+
+### Other
+
+- Latest action majors, changelog job, commented store publishing ([fd9ff69](https://github.com/AshutoshSajan/sudoku/commit/fd9ff697721849a3690fa772a70d189d4f81ad20))
+
+## [1.0.0] - 2026-10-01
 
 ### Other
 
