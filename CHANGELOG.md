@@ -3,7 +3,17 @@
 All notable changes to Sudoku are documented here, generated automatically
 from Conventional Commits by [git-cliff](https://git-cliff.org).
 
-## [unreleased]
+## [1.1.0] - 2026-10-01
+
+### Documentation
+
+- Update changelog [skip ci] ([fffc74f](https://github.com/AshutoshSajan/sudoku/commit/fffc74ffd4564851d053cd00abef425af8984bc0))
+- Add generated changelog ([1b3208a](https://github.com/AshutoshSajan/sudoku/commit/1b3208ac07b51b598a4074aeecd1973c07b29e45))
+- Resolve changelog conflict using main copy ([cf1be09](https://github.com/AshutoshSajan/sudoku/commit/cf1be09f311a2701581c22235df4f5be74931824))
+
+### Miscellaneous
+
+- *(release)* GPL-3.0 license, web-ext ignores, bump to 1.1.0 ([6db1e80](https://github.com/AshutoshSajan/sudoku/commit/6db1e80df98f9183d4c644f6a68b5129406a39ac))
 
 ### Other
 
