@@ -11,7 +11,7 @@
   "version": {
     "license": "GPL-3.0-only",
     "release_notes": {
-      "en-US": "Initial release."
+      "en-US": "Keyboard support, in-game help, responsive layouts, bundled offline engine."
     }
   }
 }
