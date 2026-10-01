@@ -9,6 +9,11 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 - Update changelog [skip ci] ([3f107ba](https://github.com/AshutoshSajan/sudoku/commit/3f107bab9f01b8a7c48dac39ce3e3c1af5350a51))
 - Sync generated changelog ([c6a2abb](https://github.com/AshutoshSajan/sudoku/commit/c6a2abbab9b3c121796b6256b1bc11bf100a6bf0))
+- Update changelog [skip ci] ([0155b68](https://github.com/AshutoshSajan/sudoku/commit/0155b68e5c3443eb5f51fa37db0f6ec6f6821d9a))
+
+### Miscellaneous
+
+- *(extension)* Add AMO listing metadata for Firefox sign ([b860a3f](https://github.com/AshutoshSajan/sudoku/commit/b860a3f815c30c5e8970162f17b055cff445dc20))
 
 ## [1.1.0] - 2026-10-01
 
