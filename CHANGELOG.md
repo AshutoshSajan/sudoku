@@ -22,11 +22,16 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Update changelog [skip ci] ([56d96ab](https://github.com/AshutoshSajan/sudoku/commit/56d96ab83d4967729720d0df6e997152a10f3bba))
 - Update changelog [skip ci] ([2dc5e25](https://github.com/AshutoshSajan/sudoku/commit/2dc5e25edb612129bcdf0bbc1e2c684965b92309))
 - Update changelog [skip ci] ([8c8f675](https://github.com/AshutoshSajan/sudoku/commit/8c8f6755bf3b63c1781efda92d157c7b507e3586))
+- Update changelog [skip ci] ([ddb193c](https://github.com/AshutoshSajan/sudoku/commit/ddb193c17fe2e485031d3ae68b266f9f34730538))
 
 ### Miscellaneous
 
 - *(extension)* Add AMO listing metadata for Firefox sign ([b860a3f](https://github.com/AshutoshSajan/sudoku/commit/b860a3f815c30c5e8970162f17b055cff445dc20))
 - *(extension)* V1.1.0 metadata, slugs, readme polish ([494129a](https://github.com/AshutoshSajan/sudoku/commit/494129ad558887c15e77702e4dbf947759d533b7))
+
+### Other
+
+- Enable Firefox add-on auto-publishing on main ([ee424e2](https://github.com/AshutoshSajan/sudoku/commit/ee424e2b0637dc139b9eec388ae1942d4dec3213))
 
 ## [1.1.0] - 2026-10-01
 
