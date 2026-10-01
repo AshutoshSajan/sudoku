@@ -48,9 +48,27 @@ jobs:
   # publish-chrome:
   #   needs: verify
   #   if: github.ref == 'refs/heads/main'
+  #   permissions:
+  #     contents: write
   #   runs-on: ubuntu-latest
   #   steps:
   #     - uses: actions/checkout@v7
+  #     - name: Bump extension version
+  #       run: |
+  #         python3 - <<'EOF'
+  #         import json
+  #         path = 'extension/manifest.json'
+  #         with open(path) as f:
+  #             manifest = json.load(f)
+  #         major, minor, patch = (
+  #             int(x) for x in manifest['version'].split('.')
+  #         )
+  #         manifest['version'] = f'{major}.{minor}.{patch + 1}'
+  #         with open(path, 'w') as f:
+  #             json.dump(manifest, f, indent=2)
+  #             f.write('\n')
+  #         print(f"Publishing extension version {manifest['version']}")
+  #         EOF
   #     - uses: subosito/flutter-action@v2
   #       with:
   #         channel: stable
@@ -69,14 +87,39 @@ jobs:
   #         --client-id ${{ secrets.CHROME_CLIENT_ID }}
   #         --client-secret ${{ secrets.CHROME_CLIENT_SECRET }}
   #         --refresh-token ${{ secrets.CHROME_REFRESH_TOKEN }}
+  #     - name: Commit version bump
+  #       run: |
+  #         git config user.name "github-actions[bot]"
+  #         git config user.email "github-actions[bot]@users.noreply.github.com"
+  #         git add extension/manifest.json
+  #         git diff --cached --quiet || git commit -m "chore(extension): bump store version [skip ci]"
+  #         git push
   #
 
   publish-firefox:
     needs: verify
     if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - name: Bump extension version
+        run: |
+          python3 - <<'EOF'
+          import json
+          path = 'extension/manifest.json'
+          with open(path) as f:
+              manifest = json.load(f)
+          major, minor, patch = (
+              int(x) for x in manifest['version'].split('.')
+          )
+          manifest['version'] = f'{major}.{minor}.{patch + 1}'
+          with open(path, 'w') as f:
+              json.dump(manifest, f, indent=2)
+              f.write('\n')
+          print(f"Publishing extension version {manifest['version']}")
+          EOF
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -93,6 +136,13 @@ jobs:
           --api-secret ${{ secrets.AMO_API_SECRET }}
           --channel listed
           --amo-metadata extension/amo-metadata.json
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add extension/manifest.json
+          git diff --cached --quiet || git commit -m "chore(extension): bump store version [skip ci]"
+          git push
       - uses: actions/upload-artifact@v7
         with:
           name: sudoku-firefox-xpi
