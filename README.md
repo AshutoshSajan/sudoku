@@ -8,9 +8,9 @@
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter)](https://flutter.dev)
 [![Platforms](https://img.shields.io/badge/platforms-Android%20%E2%80%A2%20iOS%20%E2%80%A2%20Web%20%E2%80%A2%20Desktop-4CAF50)](https://flutter.dev/multi-platform)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/8fb5f669-c274-4746-a221-85a75dc6c6fb/deploy-status)](https://app.netlify.com/projects/sudoku-870)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/8fb5f669-c274-4746-a221-85a75dc6c6fb/deploy-status)](https://app.netlify.com/projects/solve-sudoku)
 
-🎮 **[Play it live](https://sudoku-870.netlify.app)**
+🎮 **[Play it live](https://solve-sudoku.netlify.app)**
 
 </div>
 
@@ -132,6 +132,6 @@ Locked (given) cells can't be changed. Stuck? Open the in-game help via **?**.
 
 <div align="center">
 
-Built with 💙 using Flutter · [Docs](https://docs.flutter.dev/) · [Live demo](https://sudoku-870.netlify.app)
+Built with 💙 using Flutter · [Docs](https://docs.flutter.dev/) · [Live demo](https://solve-sudoku.netlify.app)
 
 </div>
