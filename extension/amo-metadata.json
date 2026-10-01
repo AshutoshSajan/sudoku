@@ -1,0 +1,17 @@
+{
+  "name": {
+    "en-US": "Sudoku"
+  },
+  "summary": {
+    "en-US": "A beautiful Sudoku puzzle game — 4 difficulties, notes, hints, undo, dark mode."
+  },
+  "categories": {
+    "firefox": ["games"]
+  },
+  "version": {
+    "license": "GPL-3.0-or-later",
+    "release_notes": {
+      "en-US": "Initial release."
+    }
+  }
+}
