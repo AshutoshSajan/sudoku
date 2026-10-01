@@ -61,3 +61,6 @@ local.properties
 
 # Local Netlify folder
 .netlify
+
+# Generated extension web build (rebuild via extension/README.md)
+extension/app/
