@@ -1,0 +1,44 @@
+# DRAFT — submit this file to https://gitlab.com/fdroid/fdroiddata
+# as metadata/com.ashutoshsajan.sudoku.yml (merge request titled
+# "New App: Sudoku"). Do NOT commit it anywhere else; it belongs to
+# the fdroiddata repo, kept here only as a working copy.
+#
+# PLEASE REMOVE ALL COMMENTS BEFORE SUBMITTING TO F-DROID DATA!
+
+Categories:
+  - Games
+License: GPL-3.0-only
+WebSite: https://solve-sudoku.netlify.app
+SourceCode: https://github.com/AshutoshSajan/sudoku
+IssueTracker: https://github.com/AshutoshSajan/sudoku/issues
+Changelog: https://github.com/AshutoshSajan/sudoku/blob/main/CHANGELOG.md
+
+AutoName: Sudoku
+
+RepoType: git
+Repo: https://github.com/AshutoshSajan/sudoku.git
+
+Builds:
+  - versionName: 1.1.0
+    versionCode: 2
+    commit: v1.1.0
+    output: build/app/outputs/flutter-apk/app-release.apk
+    srclibs:
+      - flutter@3.47.2
+    rm:
+      - ios
+      - macos
+      - windows
+      - linux
+      - web
+      - extension
+    build:
+      - $$flutter$$/bin/flutter config --no-analytics
+      - $$flutter$$/bin/flutter packages pub get
+      - $$flutter$$/bin/flutter build apk
+
+AutoUpdateMode: Version v%v
+UpdateCheckMode: Tags
+UpdateCheckData: pubspec.yaml|version:\s.++(\d+)|.|version:\s(.+)+
+CurrentVersion: 1.1.0
+CurrentVersionCode: 2
