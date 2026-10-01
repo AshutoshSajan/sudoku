@@ -2,14 +2,14 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -17,3 +17,83 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter test
+
+  changelog:
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: -o CHANGELOG.md
+        env:
+          GITHUB_REPO: ${{ github.repository }}
+      - name: Commit changelog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git diff --cached --quiet || git commit -m "docs: update changelog [skip ci]"
+          git push
+
+  # ── Extension publishing (disabled until store secrets are configured) ──
+  # Setup: add the secrets below in repo Settings → Secrets → Actions,
+  # then uncomment the job you want. All pinned to current majors
+  # (checkout v7, flutter-action v2, upload-artifact v7).
+  #
+  # publish-chrome:
+  #   needs: verify
+  #   if: github.ref == 'refs/heads/main'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v7
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         channel: stable
+  #         cache: true
+  #     - run: flutter pub get
+  #     - run: flutter build web --release --pwa-strategy=none
+  #     - run: |
+  #         rm -rf extension/app && mkdir extension/app
+  #         cp -r build/web/. extension/app/
+  #         rm -f extension/app/flutter_service_worker.js
+  #     - run: cd extension && zip -r ../extension.zip .
+  #     - run: >
+  #         npx -y chrome-webstore-upload-cli@4 upload
+  #         --source extension.zip
+  #         --extension-id ${{ secrets.CHROME_EXTENSION_ID }}
+  #         --client-id ${{ secrets.CHROME_CLIENT_ID }}
+  #         --client-secret ${{ secrets.CHROME_CLIENT_SECRET }}
+  #         --refresh-token ${{ secrets.CHROME_REFRESH_TOKEN }}
+  #
+  # publish-firefox:
+  #   needs: verify
+  #   if: github.ref == 'refs/heads/main'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v7
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         channel: stable
+  #         cache: true
+  #     - run: flutter pub get
+  #     - run: flutter build web --release --pwa-strategy=none
+  #     - run: |
+  #         rm -rf extension/app && mkdir extension/app
+  #         cp -r build/web/. extension/app/
+  #         rm -f extension/app/flutter_service_worker.js
+  #     - run: >
+  #         npx -y web-ext@10 sign --source-dir=extension
+  #         --api-key ${{ secrets.AMO_API_KEY }}
+  #         --api-secret ${{ secrets.AMO_API_SECRET }}
+  #         --channel listed
+  #     - uses: actions/upload-artifact@v7
+  #       with:
+  #         name: sudoku-firefox-xpi
+  #         path: web-ext-artifacts/*.xpi
