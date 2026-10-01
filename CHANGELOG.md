@@ -9,6 +9,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 - Add generated changelog ([1b3208a](https://github.com/AshutoshSajan/sudoku/commit/1b3208ac07b51b598a4074aeecd1973c07b29e45))
 - Resolve changelog conflict using main copy ([cf1be09](https://github.com/AshutoshSajan/sudoku/commit/cf1be09f311a2701581c22235df4f5be74931824))
+- Sync generated changelog ([c6a2abb](https://github.com/AshutoshSajan/sudoku/commit/c6a2abbab9b3c121796b6256b1bc11bf100a6bf0))
 
 ### Miscellaneous
 
