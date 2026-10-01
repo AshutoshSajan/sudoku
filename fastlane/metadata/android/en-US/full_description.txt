@@ -1,0 +1,14 @@
+Sudoku is a beautiful, modern puzzle game that runs fully offline.
+Every puzzle is generated on-device and verified to have exactly one solution.
+
+Features:
+• 4 difficulty levels: Easy, Medium, Hard, Expert
+• Pencil-mark notes with automatic cleanup
+• Hints on Easy and Medium (3 per game)
+• Unlimited undo and one-tap erase
+• Mistake tracking — 3 mistakes ends the game
+• Timer with auto-pause
+• Dark and light themes
+• In-game How to Play guide
+
+No accounts, no ads, no tracking. Free and open source (GPL-3.0).
