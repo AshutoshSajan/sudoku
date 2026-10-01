@@ -70,28 +70,30 @@ jobs:
   #         --client-secret ${{ secrets.CHROME_CLIENT_SECRET }}
   #         --refresh-token ${{ secrets.CHROME_REFRESH_TOKEN }}
   #
-  # publish-firefox:
-  #   needs: verify
-  #   if: github.ref == 'refs/heads/main'
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v7
-  #     - uses: subosito/flutter-action@v2
-  #       with:
-  #         channel: stable
-  #         cache: true
-  #     - run: flutter pub get
-  #     - run: flutter build web --release --pwa-strategy=none
-  #     - run: |
-  #         rm -rf extension/app && mkdir extension/app
-  #         cp -r build/web/. extension/app/
-  #         rm -f extension/app/flutter_service_worker.js
-  #     - run: >
-  #         npx -y web-ext@10 sign --source-dir=extension
-  #         --api-key ${{ secrets.AMO_API_KEY }}
-  #         --api-secret ${{ secrets.AMO_API_SECRET }}
-  #         --channel listed
-  #     - uses: actions/upload-artifact@v7
-  #       with:
-  #         name: sudoku-firefox-xpi
-  #         path: web-ext-artifacts/*.xpi
+
+  publish-firefox:
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build web --release --pwa-strategy=none --no-web-resources-cdn
+      - run: |
+          rm -rf extension/app && mkdir extension/app
+          cp -r build/web/. extension/app/
+          rm -f extension/app/flutter_service_worker.js
+      - run: >
+          npx -y web-ext@10 sign --source-dir=extension
+          --api-key ${{ secrets.AMO_API_KEY }}
+          --api-secret ${{ secrets.AMO_API_SECRET }}
+          --channel listed
+          --amo-metadata extension/amo-metadata.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sudoku-firefox-xpi
+          path: web-ext-artifacts/*.xpi
