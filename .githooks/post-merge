@@ -1,0 +1,18 @@
+#!/bin/sh
+# Fallback changelog when CI minutes are gone: regenerate CHANGELOG.md
+# locally after every merge. The file is left uncommitted on purpose —
+# review it, then commit it with your next change.
+# (With CI minutes available, the changelog job does this automatically.)
+
+if ! command -v git-cliff >/dev/null 2>&1; then
+  echo "⚠️  git-cliff not installed — skipping local CHANGELOG update." >&2
+  exit 0
+fi
+
+if git cliff -o CHANGELOG.md 2>/dev/null; then
+  if ! git diff --quiet -- CHANGELOG.md; then
+    echo "📝 CHANGELOG.md regenerated locally — review and commit it."
+  fi
+else
+  echo "⚠️  git-cliff found no tags yet — tag releases as vX.Y.Z." >&2
+fi
