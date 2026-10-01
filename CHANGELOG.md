@@ -8,6 +8,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 ### Features
 
 - *(fdroid)* Fastlane metadata and submission recipe draft ([5f746d0](https://github.com/AshutoshSajan/sudoku/commit/5f746d000fb04301d04c2e13bc68c513455f0c30))
+- *(save)* Autosave game with resume from home screen ([f666b11](https://github.com/AshutoshSajan/sudoku/commit/f666b115a790d8255e793487973981c622af505a))
 
 ### Bug Fixes
 
@@ -20,6 +21,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Update changelog [skip ci] ([0155b68](https://github.com/AshutoshSajan/sudoku/commit/0155b68e5c3443eb5f51fa37db0f6ec6f6821d9a))
 - Update changelog [skip ci] ([56d96ab](https://github.com/AshutoshSajan/sudoku/commit/56d96ab83d4967729720d0df6e997152a10f3bba))
 - Update changelog [skip ci] ([2dc5e25](https://github.com/AshutoshSajan/sudoku/commit/2dc5e25edb612129bcdf0bbc1e2c684965b92309))
+- Update changelog [skip ci] ([8c8f675](https://github.com/AshutoshSajan/sudoku/commit/8c8f6755bf3b63c1781efda92d157c7b507e3586))
 
 ### Miscellaneous
 
