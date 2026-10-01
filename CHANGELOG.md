@@ -23,11 +23,13 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Update changelog [skip ci] ([2dc5e25](https://github.com/AshutoshSajan/sudoku/commit/2dc5e25edb612129bcdf0bbc1e2c684965b92309))
 - Update changelog [skip ci] ([8c8f675](https://github.com/AshutoshSajan/sudoku/commit/8c8f6755bf3b63c1781efda92d157c7b507e3586))
 - Update changelog [skip ci] ([ddb193c](https://github.com/AshutoshSajan/sudoku/commit/ddb193c17fe2e485031d3ae68b266f9f34730538))
+- Update changelog [skip ci] ([b0dba28](https://github.com/AshutoshSajan/sudoku/commit/b0dba28d0d522da33858d4ae1503e2c008e44165))
 
 ### Miscellaneous
 
 - *(extension)* Add AMO listing metadata for Firefox sign ([b860a3f](https://github.com/AshutoshSajan/sudoku/commit/b860a3f815c30c5e8970162f17b055cff445dc20))
 - *(extension)* V1.1.0 metadata, slugs, readme polish ([494129a](https://github.com/AshutoshSajan/sudoku/commit/494129ad558887c15e77702e4dbf947759d533b7))
+- *(extension)* Bump to 1.1.1 for AMO resubmission ([9e74fe0](https://github.com/AshutoshSajan/sudoku/commit/9e74fe07e264774d61bc43defb9bef423a0c537e))
 
 ### Other
 
