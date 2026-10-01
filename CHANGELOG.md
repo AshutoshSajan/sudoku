@@ -5,11 +5,14 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ## [unreleased]
 
-### Other
+### Documentation
 
-- Latest action majors, changelog job, commented store publishing ([fd9ff69](https://github.com/AshutoshSajan/sudoku/commit/fd9ff697721849a3690fa772a70d189d4f81ad20))
+- Add generated changelog ([1b3208a](https://github.com/AshutoshSajan/sudoku/commit/1b3208ac07b51b598a4074aeecd1973c07b29e45))
+- Resolve changelog conflict using main copy ([cf1be09](https://github.com/AshutoshSajan/sudoku/commit/cf1be09f311a2701581c22235df4f5be74931824))
 
-## [1.0.0] - 2026-10-01
+### Miscellaneous
+
+- *(release)* GPL-3.0 license, web-ext ignores, bump to 1.1.0 ([6db1e80](https://github.com/AshutoshSajan/sudoku/commit/6db1e80df98f9183d4c644f6a68b5129406a39ac))
 
 ### Other
 
