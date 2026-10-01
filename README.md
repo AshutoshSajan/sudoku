@@ -9,6 +9,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter)](https://flutter.dev)
 [![Platforms](https://img.shields.io/badge/platforms-Android%20%E2%80%A2%20iOS%20%E2%80%A2%20Web%20%E2%80%A2%20Desktop-4CAF50)](https://flutter.dev/multi-platform)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/8fb5f669-c274-4746-a221-85a75dc6c6fb/deploy-status)](https://app.netlify.com/projects/solve-sudoku)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
 🎮 **[Play it live](https://solve-sudoku.netlify.app)**
 

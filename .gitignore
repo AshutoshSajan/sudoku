@@ -64,3 +64,7 @@ local.properties
 
 # Generated extension web build (rebuild via extension/README.md)
 extension/app/
+
+# web-ext local upload state (transient, machine-specific)
+.amo-upload-uuid
+web-ext-artifacts/
