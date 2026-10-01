@@ -28,42 +28,47 @@ class NumberPad extends StatelessWidget {
         return Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: GestureDetector(
-              onTap: isDisabled ? null : () => onNumberSelected(num),
-              child: AnimatedOpacity(
-                opacity: isDisabled ? 0.25 : 1.0,
-                duration: const Duration(milliseconds: 200),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 46,
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? primary.withAlpha(25)
-                            : primary.withAlpha(15),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        '$num',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                          color: primary,
+            child: Tooltip(
+              message: isDisabled
+                  ? 'No $num left to place'
+                  : 'Place $num (keyboard: $num)',
+              child: GestureDetector(
+                onTap: isDisabled ? null : () => onNumberSelected(num),
+                child: AnimatedOpacity(
+                  opacity: isDisabled ? 0.25 : 1.0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? primary.withAlpha(25)
+                              : primary.withAlpha(15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '$num',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            color: primary,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '$remaining',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: theme.colorScheme.onSurface.withAlpha(100),
+                      const SizedBox(height: 4),
+                      Text(
+                        '$remaining',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: theme.colorScheme.onSurface.withAlpha(100),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

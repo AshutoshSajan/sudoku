@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../models/sudoku_game.dart';
 import 'game_screen.dart';
+import 'help_screen.dart';
 
 /// The landing screen with app branding and difficulty selection cards.
 class HomeScreen extends StatelessWidget {
@@ -17,10 +19,10 @@ class HomeScreen extends StatelessWidget {
           return FadeTransition(
             opacity: animation,
             child: SlideTransition(
-              position: Tween(
-                begin: const Offset(0.05, 0),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+              position: Tween(begin: const Offset(0.05, 0), end: Offset.zero)
+                  .animate(
+                    CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                  ),
               child: child,
             ),
           );
@@ -37,112 +39,168 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 12),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 928),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // Wide screens: even 2-column card grid.
+                  // Narrow screens: full-width list, as before.
+                  final wide = constraints.maxWidth > 600;
+                  final cardWidth = wide
+                      ? (constraints.maxWidth - 12) / 2
+                      : constraints.maxWidth;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 12),
 
-              // ── Top bar ──
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: onToggleTheme,
-                    icon: Icon(
-                      isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                      size: 22,
-                    ),
-                    style: IconButton.styleFrom(
-                      backgroundColor: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
-                    ),
-                  ),
-                ],
-              ),
-
-              const Spacer(flex: 3),
-
-              // ── Branding ──
-              Center(
-                child: Column(
-                  children: [
-                    // App icon
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            theme.colorScheme.primary,
-                            theme.colorScheme.tertiary,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(22),
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.colorScheme.primary.withAlpha(60),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
+                      // ── Top bar ──
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const HelpScreen(),
+                                ),
+                              );
+                            },
+                            tooltip: 'How to play',
+                            icon: const Icon(
+                              Icons.help_outline_rounded,
+                              size: 22,
+                            ),
+                            style: IconButton.styleFrom(
+                              backgroundColor: theme
+                                  .colorScheme
+                                  .surfaceContainerHighest
+                                  .withAlpha(80),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            onPressed: onToggleTheme,
+                            tooltip: isDark
+                                ? 'Switch to light theme'
+                                : 'Switch to dark theme',
+                            icon: Icon(
+                              isDark
+                                  ? Icons.light_mode_rounded
+                                  : Icons.dark_mode_rounded,
+                              size: 22,
+                            ),
+                            style: IconButton.styleFrom(
+                              backgroundColor: theme
+                                  .colorScheme
+                                  .surfaceContainerHighest
+                                  .withAlpha(80),
+                            ),
                           ),
                         ],
                       ),
-                      child: Center(
-                        child: Text(
-                          '9',
-                          style: TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.w800,
-                            color: theme.colorScheme.onPrimary,
-                          ),
+
+                      const Spacer(flex: 3),
+
+                      // ── Branding ──
+                      Center(
+                        child: Column(
+                          children: [
+                            // App icon
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    theme.colorScheme.primary,
+                                    theme.colorScheme.tertiary,
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(22),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: theme.colorScheme.primary.withAlpha(
+                                      60,
+                                    ),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '9',
+                                  style: TextStyle(
+                                    fontSize: 40,
+                                    fontWeight: FontWeight.w800,
+                                    color: theme.colorScheme.onPrimary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Text(
+                              'Sudoku',
+                              style: theme.textTheme.headlineLarge?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Challenge your mind',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurface.withAlpha(
+                                  120,
+                                ),
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Sudoku',
-                      style: theme.textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
+
+                      const Spacer(flex: 3),
+
+                      // ── Difficulty selection ──
+                      Text(
+                        'Select Difficulty',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface.withAlpha(160),
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Challenge your mind',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withAlpha(120),
-                        letterSpacing: 0.3,
+                      const SizedBox(height: 12),
+
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 10,
+                        children: Difficulty.values
+                            .map(
+                              (d) => SizedBox(
+                                width: cardWidth,
+                                child: _DifficultyCard(
+                                  difficulty: d,
+                                  onTap: () => _startGame(context, d),
+                                ),
+                              ),
+                            )
+                            .toList(),
                       ),
-                    ),
-                  ],
-                ),
+
+                      const Spacer(flex: 4),
+                    ],
+                  );
+                },
               ),
-
-              const Spacer(flex: 3),
-
-              // ── Difficulty selection ──
-              Text(
-                'Select Difficulty',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: theme.colorScheme.onSurface.withAlpha(160),
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              ...Difficulty.values.map((d) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _DifficultyCard(
-                      difficulty: d,
-                      onTap: () => _startGame(context, d),
-                    ),
-                  )),
-
-              const Spacer(flex: 4),
-            ],
+            ),
           ),
         ),
       ),
@@ -196,7 +254,11 @@ class _DifficultyCard extends StatelessWidget {
                     color: difficulty.color.withAlpha(25),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(difficulty.icon, color: difficulty.color, size: 20),
+                  child: Icon(
+                    difficulty.icon,
+                    color: difficulty.color,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 14),
 

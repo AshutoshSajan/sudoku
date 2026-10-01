@@ -58,3 +58,6 @@ key.properties
 local.properties
 .env
 .env.*
+
+# Local Netlify folder
+.netlify

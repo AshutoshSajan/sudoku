@@ -1,6 +1,16 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+/// Generates a puzzle off the main thread ([SudokuGame.generate] entry point).
+/// Must stay top-level for [compute].
+({List<List<int>> puzzle, List<List<int>> solution}) _generatePuzzleData(
+  Difficulty difficulty,
+) {
+  final result = SudokuGame.generatePuzzle(difficulty.cellsToRemove, Random());
+  return (puzzle: result[0], solution: result[1]);
+}
 
 /// Difficulty levels with their display properties and removal counts.
 enum Difficulty {
@@ -91,6 +101,28 @@ class SudokuGame {
   SudokuGame(this.difficulty)
     : hintsRemaining = difficulty.allowsHints ? 3 : 0 {
     _generateNewGame();
+  }
+
+  /// Builds a game from existing data (tests, background generation).
+  SudokuGame.fromData({
+    required this.difficulty,
+    required List<List<int>> puzzle,
+    required List<List<int>> solution,
+  }) : hintsRemaining = difficulty.allowsHints ? 3 : 0 {
+    board = puzzle.map((row) => List<int>.from(row)).toList();
+    this.solution = solution.map((row) => List<int>.from(row)).toList();
+    given = puzzle.map((row) => row.map((v) => v != 0).toList()).toList();
+    notes = List.generate(9, (_) => List.generate(9, (_) => <int>{}));
+  }
+
+  /// Generates a puzzle on a background isolate (main thread on web).
+  static Future<SudokuGame> generate(Difficulty difficulty) async {
+    final data = await compute(_generatePuzzleData, difficulty);
+    return SudokuGame.fromData(
+      difficulty: difficulty,
+      puzzle: data.puzzle,
+      solution: data.solution,
+    );
   }
 
   // ── Timer ──────────────────────────────────────────────────────────
@@ -267,14 +299,14 @@ class SudokuGame {
   // ── Puzzle generation ──────────────────────────────────────────────
 
   void _generateNewGame() {
-    final result = _generatePuzzle(difficulty.cellsToRemove);
+    final result = generatePuzzle(difficulty.cellsToRemove, _random);
     board = result[0].map((row) => List<int>.from(row)).toList();
     solution = result[1].map((row) => List<int>.from(row)).toList();
     given = result[0].map((row) => row.map((v) => v != 0).toList()).toList();
     notes = List.generate(9, (_) => List.generate(9, (_) => <int>{}));
   }
 
-  bool _isValid(List<List<int>> grid, int row, int col, int num) {
+  static bool _isValid(List<List<int>> grid, int row, int col, int num) {
     for (int i = 0; i < 9; i++) {
       if (grid[row][i] == num) return false;
       if (grid[i][col] == num) return false;
@@ -288,15 +320,15 @@ class SudokuGame {
     return true;
   }
 
-  bool _solve(List<List<int>> grid) {
+  static bool _solve(List<List<int>> grid, Random random) {
     for (int row = 0; row < 9; row++) {
       for (int col = 0; col < 9; col++) {
         if (grid[row][col] == 0) {
-          final nums = List.generate(9, (i) => i + 1)..shuffle(_random);
+          final nums = List.generate(9, (i) => i + 1)..shuffle(random);
           for (final num in nums) {
             if (_isValid(grid, row, col, num)) {
               grid[row][col] = num;
-              if (_solve(grid)) return true;
+              if (_solve(grid, random)) return true;
               grid[row][col] = 0;
             }
           }
@@ -307,11 +339,11 @@ class SudokuGame {
     return true;
   }
 
-  List<List<int>> _generateSolution() {
+  static List<List<int>> _generateSolution(Random random) {
     final grid = List.generate(9, (_) => List.filled(9, 0));
     // Seed the diagonal boxes for faster generation
     for (int box = 0; box < 9; box += 3) {
-      final nums = List.generate(9, (i) => i + 1)..shuffle(_random);
+      final nums = List.generate(9, (i) => i + 1)..shuffle(random);
       int idx = 0;
       for (int r = box; r < box + 3; r++) {
         for (int c = box; c < box + 3; c++) {
@@ -319,11 +351,11 @@ class SudokuGame {
         }
       }
     }
-    _solve(grid);
+    _solve(grid, random);
     return grid;
   }
 
-  int _countSolutions(List<List<int>> grid, {int limit = 2}) {
+  static int _countSolutions(List<List<int>> grid, {int limit = 2}) {
     int count = 0;
     void inner(List<List<int>> g) {
       for (int r = 0; r < 9; r++) {
@@ -348,8 +380,12 @@ class SudokuGame {
     return count;
   }
 
-  List<List<List<int>>> _generatePuzzle(int cellsToRemove) {
-    final sol = _generateSolution();
+  @visibleForTesting
+  static List<List<List<int>>> generatePuzzle(
+    int cellsToRemove,
+    Random random,
+  ) {
+    final sol = _generateSolution(random);
     final puzzle = sol.map((row) => List<int>.from(row)).toList();
     final cells = <Point<int>>[];
     for (int r = 0; r < 9; r++) {
@@ -357,7 +393,7 @@ class SudokuGame {
         cells.add(Point(r, c));
       }
     }
-    cells.shuffle(_random);
+    cells.shuffle(random);
 
     int removed = 0;
     for (final cell in cells) {

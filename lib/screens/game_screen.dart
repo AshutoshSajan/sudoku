@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../models/sudoku_game.dart';
+import 'help_screen.dart';
 import '../widgets/sudoku_board.dart';
 import '../widgets/number_pad.dart';
 import '../widgets/action_bar.dart';
@@ -23,8 +25,18 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   late SudokuGame game;
-  late Timer _ticker;
+  Timer? _ticker;
   bool _isLoading = true;
+
+  /// Guards against overlapping generations (latest wins).
+  int _generation = 0;
+
+  /// Focus for laptop/desktop keyboard input.
+  final FocusNode _screenFocus = FocusNode();
+
+  /// Hidden input that summons the Android/iOS touch keyboard.
+  final FocusNode _softInputFocus = FocusNode();
+  final TextEditingController _softInputController = TextEditingController();
 
   @override
   void initState() {
@@ -38,7 +50,10 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     if (!_isLoading) game.pauseTimer();
-    _ticker.cancel();
+    _ticker?.cancel();
+    _screenFocus.dispose();
+    _softInputFocus.dispose();
+    _softInputController.dispose();
     super.dispose();
   }
 
@@ -52,20 +67,23 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   }
 
   void _startNewGame() {
+    // Cancel any previous ticker and invalidate in-flight generations.
+    _ticker?.cancel();
+    _ticker = null;
+    final current = ++_generation;
     setState(() => _isLoading = true);
-    // Use a microtask to allow the loading indicator to render
-    Future.microtask(() {
-      final newGame = SudokuGame(widget.difficulty);
+    // Generate off the UI thread (loading indicator stays responsive).
+    SudokuGame.generate(widget.difficulty).then((newGame) {
+      if (!mounted || current != _generation) return;
       newGame.startTimer();
-      if (mounted) {
-        setState(() {
-          game = newGame;
-          _isLoading = false;
-        });
-      }
-    });
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted && !_isLoading && !game.isPaused) setState(() {});
+      setState(() {
+        game = newGame;
+        _isLoading = false;
+      });
+      _ticker?.cancel();
+      _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (mounted && !_isLoading && !game.isPaused) setState(() {});
+      });
     });
   }
 
@@ -73,6 +91,16 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
 
   void _selectCell(int row, int col) {
     setState(() => game.selectCell(row, col));
+    // On phones/tablets, selecting a cell summons the touch keyboard
+    // via the hidden input; tapping a locked cell dismisses it.
+    if (_isMobile) {
+      if (game.selectedRow == -1) {
+        _softInputFocus.unfocus();
+        _screenFocus.requestFocus();
+      } else {
+        _softInputFocus.requestFocus();
+      }
+    }
   }
 
   void _setNumber(int num) {
@@ -117,6 +145,119 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     setState(() {
       game.isPaused ? game.resumeTimer() : game.pauseTimer();
     });
+    if (game.isPaused) _softInputFocus.unfocus();
+  }
+
+  // ── Keyboard input (laptop/desktop + touch keyboard) ─────────────
+
+  /// Touch keyboards only exist on mobile – everywhere else the on-screen
+  /// number pad plus the physical keyboard cover input.
+  bool get _isMobile =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
+
+  /// Numpad keys on layouts where keyLabel isn't already the digit.
+  static final _numpadDigits = <LogicalKeyboardKey, int>{
+    LogicalKeyboardKey.numpad0: 0,
+    LogicalKeyboardKey.numpad1: 1,
+    LogicalKeyboardKey.numpad2: 2,
+    LogicalKeyboardKey.numpad3: 3,
+    LogicalKeyboardKey.numpad4: 4,
+    LogicalKeyboardKey.numpad5: 5,
+    LogicalKeyboardKey.numpad6: 6,
+    LogicalKeyboardKey.numpad7: 7,
+    LogicalKeyboardKey.numpad8: 8,
+    LogicalKeyboardKey.numpad9: 9,
+  };
+
+  /// Handles laptop/desktop keyboard events: 1–9 to fill, 0/Backspace to
+  /// erase, arrows to move selection, U/N/H for undo/notes/hint.
+  KeyEventResult _onScreenKey(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent || _isLoading) return KeyEventResult.ignored;
+    final key = event.logicalKey;
+    if (key == LogicalKeyboardKey.backspace ||
+        key == LogicalKeyboardKey.delete) {
+      _erase();
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowUp) {
+      _moveSelection(-1, 0);
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowDown) {
+      _moveSelection(1, 0);
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowLeft) {
+      _moveSelection(0, -1);
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowRight) {
+      _moveSelection(0, 1);
+      return KeyEventResult.handled;
+    }
+    final numpadDigit = _numpadDigits[key];
+    if (numpadDigit != null) {
+      if (numpadDigit == 0) {
+        _erase();
+      } else {
+        _setNumber(numpadDigit);
+      }
+      return KeyEventResult.handled;
+    }
+    if (key.keyLabel.length == 1) {
+      final digit = int.tryParse(key.keyLabel);
+      if (digit != null) {
+        if (digit == 0) {
+          _erase();
+        } else {
+          _setNumber(digit);
+        }
+        return KeyEventResult.handled;
+      }
+      switch (key.keyLabel.toLowerCase()) {
+        case 'u':
+          _undo();
+          return KeyEventResult.handled;
+        case 'n':
+          _toggleNotes();
+          return KeyEventResult.handled;
+        case 'h':
+          _hint();
+          return KeyEventResult.handled;
+      }
+    }
+    return KeyEventResult.ignored;
+  }
+
+  /// Moves the cell selection with the arrow keys (clamped to the board).
+  void _moveSelection(int dRow, int dCol) {
+    if (_isLoading || game.isCompleted || game.isGameOver) return;
+    setState(() {
+      if (game.selectedRow == -1 || game.selectedCol == -1) {
+        game.selectedRow = 0;
+        game.selectedCol = 0;
+      } else {
+        game.selectedRow = (game.selectedRow + dRow).clamp(0, 8);
+        game.selectedCol = (game.selectedCol + dCol).clamp(0, 8);
+      }
+    });
+  }
+
+  /// Handles digits typed on the Android/iOS touch keyboard.
+  void _onSoftInput(String text) {
+    if (_isLoading || text.isEmpty) return;
+    final digit = int.tryParse(text.characters.last);
+    // Clear so the next keypress always counts as a change.
+    // (Programmatic clears don't re-trigger onChanged.)
+    _softInputController.clear();
+    if (digit == null) return;
+    if (digit == 0) {
+      _erase();
+    } else {
+      _setNumber(digit);
+    }
   }
 
   void _goBack() {
@@ -124,7 +265,22 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     Navigator.of(context).pop();
   }
 
+  void _showHelp() {
+    if (_isLoading) return;
+    _softInputFocus.unfocus();
+    game.pauseTimer();
+    setState(() {});
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const HelpScreen()))
+        .then((_) {
+          if (mounted && !_isLoading) {
+            setState(() => game.resumeTimer());
+          }
+        });
+  }
+
   void _showWinDialog() {
+    _softInputFocus.unfocus();
     WinDialog.show(
       context,
       difficulty: game.difficulty,
@@ -132,7 +288,6 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       mistakes: game.mistakes,
       onNewGame: () {
         Navigator.of(context).pop(); // close dialog
-        _ticker.cancel();
         _startNewGame();
       },
       onHome: () {
@@ -143,12 +298,12 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   }
 
   void _showGameOverDialog() {
+    _softInputFocus.unfocus();
     game.pauseTimer();
     GameOverDialog.show(
       context,
       onRetry: () {
         Navigator.of(context).pop(); // close dialog
-        _ticker.cancel();
         _startNewGame();
       },
       onHome: () {
@@ -186,91 +341,150 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     }
 
     return Scaffold(
-      // LayoutBuilder + scroll fallback: the board shrinks to fit short
-      // windows (e.g. a resized web app) and the column scrolls if the
-      // window gets too small, so the full board stays reachable.
+      // Two-mode layout: tall screens get a full-width board with the
+      // extra space distributed (no dead space); short windows (e.g. a
+      // resized web app) shrink the board and scroll as a fallback.
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            // Vertical space taken by header + controls + spacing.
-            const reservedHeight = 330.0;
-            const maxContentWidth = 560.0;
-            const minBoardSize = 260.0;
+        child: Focus(
+          focusNode: _screenFocus,
+          autofocus: true,
+          onKeyEvent: _onScreenKey,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              const maxContentWidth = 560.0;
+              const minBoardSize = 260.0;
+              // Height of header + gaps + action bar + number pad + margins.
+              const chromeHeight = 320.0;
 
-            final contentWidth = (constraints.maxWidth - 32)
-                .clamp(0.0, maxContentWidth)
-                .toDouble();
-            final boardSize = min(
-              contentWidth,
-              constraints.maxHeight - reservedHeight,
-            ).clamp(minBoardSize, maxContentWidth).toDouble();
+              // Single 16px margin on each side.
+              final contentWidth =
+                  (min(constraints.maxWidth, maxContentWidth + 32) - 32)
+                      .clamp(0.0, maxContentWidth)
+                      .toDouble();
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Center(
-                child: SizedBox(
-                  width: contentWidth,
-                  child: Column(
-                    children: [
-                      // ── Header ──
-                      GameHeader(
-                        difficulty: game.difficulty,
-                        formattedTime: game.formattedTime,
-                        mistakes: game.mistakes,
-                        maxMistakes: SudokuGame.maxMistakes,
-                        isPaused: game.isPaused,
-                        onPause: _togglePause,
-                        onBack: _goBack,
+              // Tall screen: full-width board, extra space distributed.
+              // Short screen: shrink the board, scroll if it still overflows.
+              final fullBoardFits =
+                  contentWidth + chromeHeight <= constraints.maxHeight;
+              final boardSize = fullBoardFits
+                  ? contentWidth
+                  : (constraints.maxHeight - chromeHeight)
+                        .clamp(minBoardSize, maxContentWidth)
+                        .toDouble();
+
+              final header = GameHeader(
+                difficulty: game.difficulty,
+                formattedTime: game.formattedTime,
+                mistakes: game.mistakes,
+                maxMistakes: SudokuGame.maxMistakes,
+                isPaused: game.isPaused,
+                onPause: _togglePause,
+                onBack: _goBack,
+                onHelp: _showHelp,
+              );
+              final boardArea = SizedBox.square(
+                dimension: boardSize,
+                child: game.isPaused
+                    ? _buildPausedPlaceholder(context)
+                    : SudokuBoard(
+                        board: game.board,
+                        given: game.given,
+                        notes: game.notes,
+                        selectedRow: game.selectedRow,
+                        selectedCol: game.selectedCol,
+                        hasError: game.hasError,
+                        isInSameGroup: game.isInSameGroup,
+                        isSameNumber: game.isSameNumber,
+                        onCellTap: _selectCell,
                       ),
-
-                      const SizedBox(height: 12),
-
-                      // ── Board ──
-                      SizedBox.square(
-                        dimension: boardSize,
-                        child: game.isPaused
-                            ? _buildPausedPlaceholder(context)
-                            : SudokuBoard(
-                                board: game.board,
-                                given: game.given,
-                                notes: game.notes,
-                                selectedRow: game.selectedRow,
-                                selectedCol: game.selectedCol,
-                                hasError: game.hasError,
-                                isInSameGroup: game.isInSameGroup,
-                                isSameNumber: game.isSameNumber,
-                                onCellTap: _selectCell,
-                              ),
+              );
+              final actions = ActionBar(
+                onUndo: _undo,
+                onErase: _erase,
+                onToggleNotes: _toggleNotes,
+                onHint: _hint,
+                isNotesActive: game.isNotesMode,
+                canUndo: game.canUndo,
+                hintsRemaining: game.hintsRemaining,
+              );
+              final pad = NumberPad(
+                onNumberSelected: _setNumber,
+                getRemainingCount: game.getRemainingCount,
+              );
+              // Hidden input that summons the Android/iOS touch keyboard.
+              // Zero visual footprint.
+              final hiddenInput = <Widget>[
+                if (_isMobile)
+                  SizedBox(
+                    width: 1,
+                    height: 1,
+                    child: TextField(
+                      focusNode: _softInputFocus,
+                      controller: _softInputController,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.done,
+                      autocorrect: false,
+                      enableSuggestions: false,
+                      showCursor: false,
+                      enableInteractiveSelection: false,
+                      style: const TextStyle(
+                        color: Colors.transparent,
+                        fontSize: 1,
                       ),
-
-                      const SizedBox(height: 24),
-
-                      // ── Action Bar ──
-                      ActionBar(
-                        onUndo: _undo,
-                        onErase: _erase,
-                        onToggleNotes: _toggleNotes,
-                        onHint: _hint,
-                        isNotesActive: game.isNotesMode,
-                        canUndo: game.canUndo,
-                        hintsRemaining: game.hintsRemaining,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        counterText: '',
                       ),
+                      onChanged: _onSoftInput,
+                    ),
+                  ),
+              ];
 
-                      const SizedBox(height: 20),
+              if (fullBoardFits) {
+                // Spread content across the full height – no dead space.
+                return Center(
+                  child: SizedBox(
+                    width: contentWidth,
+                    child: Column(
+                      children: [
+                        header,
+                        const Spacer(),
+                        boardArea,
+                        const SizedBox(height: 24),
+                        actions,
+                        const SizedBox(height: 20),
+                        pad,
+                        const Spacer(flex: 2),
+                        ...hiddenInput,
+                      ],
+                    ),
+                  ),
+                );
+              }
 
-                      // ── Number Pad ──
-                      NumberPad(
-                        onNumberSelected: _setNumber,
-                        getRemainingCount: game.getRemainingCount,
-                      ),
-
-                      const SizedBox(height: 8),
-                    ],
+              return SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Center(
+                  child: SizedBox(
+                    width: contentWidth,
+                    child: Column(
+                      children: [
+                        header,
+                        const SizedBox(height: 12),
+                        boardArea,
+                        const SizedBox(height: 24),
+                        actions,
+                        const SizedBox(height: 20),
+                        pad,
+                        const SizedBox(height: 8),
+                        ...hiddenInput,
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

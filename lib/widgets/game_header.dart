@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/sudoku_game.dart';
 
 /// Top header bar showing difficulty badge, timer, mistake indicators, and a pause button.
@@ -10,6 +11,7 @@ class GameHeader extends StatelessWidget {
   final bool isPaused;
   final VoidCallback onPause;
   final VoidCallback onBack;
+  final VoidCallback onHelp;
 
   const GameHeader({
     super.key,
@@ -20,6 +22,7 @@ class GameHeader extends StatelessWidget {
     required this.isPaused,
     required this.onPause,
     required this.onBack,
+    required this.onHelp,
   });
 
   @override
@@ -33,9 +36,11 @@ class GameHeader extends StatelessWidget {
           // Back button
           IconButton(
             onPressed: onBack,
+            tooltip: 'Back to difficulty selection',
             icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
             style: IconButton.styleFrom(
-              backgroundColor: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
+              backgroundColor: theme.colorScheme.surfaceContainerHighest
+                  .withAlpha(80),
               fixedSize: const Size(40, 40),
             ),
           ),
@@ -109,15 +114,31 @@ class GameHeader extends StatelessWidget {
 
           const Spacer(),
 
+          // Help button
+          IconButton(
+            onPressed: onHelp,
+            tooltip: 'How to play',
+            icon: const Icon(Icons.help_outline_rounded, size: 20),
+            style: IconButton.styleFrom(
+              backgroundColor: theme.colorScheme.surfaceContainerHighest
+                  .withAlpha(80),
+              fixedSize: const Size(40, 40),
+            ),
+          ),
+
+          const SizedBox(width: 8),
+
           // Pause button
           IconButton(
             onPressed: onPause,
+            tooltip: isPaused ? 'Resume game' : 'Pause game',
             icon: Icon(
               isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
               size: 22,
             ),
             style: IconButton.styleFrom(
-              backgroundColor: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
+              backgroundColor: theme.colorScheme.surfaceContainerHighest
+                  .withAlpha(80),
               fixedSize: const Size(40, 40),
             ),
           ),
