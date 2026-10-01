@@ -32,8 +32,6 @@ jobs:
         with:
           config: cliff.toml
           args: -o CHANGELOG.md
-        env:
-          GITHUB_REPO: ${{ github.repository }}
       - name: Commit changelog
         run: |
           git config user.name "github-actions[bot]"
