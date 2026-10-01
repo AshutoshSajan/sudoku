@@ -46,3 +46,15 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+
+# Secrets – never commit signing keys or local config
+*.jks
+*.keystore
+key.properties
+local.properties
+.env
+.env.*
