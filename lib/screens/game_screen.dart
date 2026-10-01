@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../models/sudoku_game.dart';
+import '../services/game_storage.dart';
 import 'help_screen.dart';
 import '../widgets/sudoku_board.dart';
 import '../widgets/number_pad.dart';
@@ -17,7 +18,10 @@ import '../widgets/win_dialog.dart';
 class GameScreen extends StatefulWidget {
   final Difficulty difficulty;
 
-  const GameScreen({super.key, required this.difficulty});
+  /// When true, restores the autosaved game instead of generating a new one.
+  final bool resume;
+
+  const GameScreen({super.key, required this.difficulty, this.resume = false});
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -62,8 +66,26 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     if (_isLoading) return;
     if (state == AppLifecycleState.paused) {
       game.pauseTimer();
+      _persist();
       setState(() {});
     }
+  }
+
+  /// Writes the current state to the autosave slot (fire-and-forget).
+  /// Finished games clear the slot instead — they never resume.
+  void _persist() {
+    if (_isLoading) return;
+    unawaited(GameStorage.save(game));
+  }
+
+  Future<SudokuGame> _loadGame() async {
+    if (widget.resume) {
+      final saved = await GameStorage.load();
+      if (saved != null && saved.difficulty == widget.difficulty) {
+        return saved;
+      }
+    }
+    return SudokuGame.generate(widget.difficulty);
   }
 
   void _startNewGame() {
@@ -72,14 +94,16 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     _ticker = null;
     final current = ++_generation;
     setState(() => _isLoading = true);
-    // Generate off the UI thread (loading indicator stays responsive).
-    SudokuGame.generate(widget.difficulty).then((newGame) {
+    // Resume the save when asked, otherwise generate off the UI thread
+    // (loading indicator stays responsive).
+    _loadGame().then((newGame) {
       if (!mounted || current != _generation) return;
       newGame.startTimer();
       setState(() {
         game = newGame;
         _isLoading = false;
       });
+      _persist();
       _ticker?.cancel();
       _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
         if (mounted && !_isLoading && !game.isPaused) setState(() {});
@@ -91,6 +115,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
 
   void _selectCell(int row, int col) {
     setState(() => game.selectCell(row, col));
+    _persist();
     // On phones/tablets, selecting a cell summons the touch keyboard
     // via the hidden input; tapping a locked cell dismisses it.
     if (_isMobile) {
@@ -115,11 +140,23 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
         HapticFeedback.mediumImpact();
       }
     });
+    _persist();
   }
 
-  void _erase() => setState(() => game.erase());
-  void _undo() => setState(() => game.undo());
-  void _toggleNotes() => setState(() => game.isNotesMode = !game.isNotesMode);
+  void _erase() {
+    setState(() => game.erase());
+    _persist();
+  }
+
+  void _undo() {
+    setState(() => game.undo());
+    _persist();
+  }
+
+  void _toggleNotes() {
+    setState(() => game.isNotesMode = !game.isNotesMode);
+    _persist();
+  }
 
   void _hint() {
     setState(() {
@@ -139,6 +176,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       }
       if (game.isCompleted) _showWinDialog();
     });
+    _persist();
   }
 
   void _togglePause() {
@@ -146,6 +184,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       game.isPaused ? game.resumeTimer() : game.pauseTimer();
     });
     if (game.isPaused) _softInputFocus.unfocus();
+    _persist();
   }
 
   // ── Keyboard input (laptop/desktop + touch keyboard) ─────────────
@@ -243,6 +282,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
         game.selectedCol = (game.selectedCol + dCol).clamp(0, 8);
       }
     });
+    _persist();
   }
 
   /// Handles digits typed on the Android/iOS touch keyboard.
@@ -261,7 +301,10 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   }
 
   void _goBack() {
-    if (!_isLoading) game.pauseTimer();
+    if (!_isLoading) {
+      game.pauseTimer();
+      _persist();
+    }
     Navigator.of(context).pop();
   }
 

@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sudoku/main.dart';
+import 'package:sudoku/models/sudoku_game.dart';
 import 'package:sudoku/screens/help_screen.dart';
+import 'package:sudoku/services/game_storage.dart';
 import 'package:sudoku/widgets/action_bar.dart';
 
 void main() {
+  setUpAll(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('App launches successfully', (WidgetTester tester) async {
     await tester.pumpWidget(const SudokuApp());
     expect(find.text('Sudoku'), findsWidgets);
@@ -27,6 +34,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(HelpScreen), findsOneWidget);
     expect(find.text('Notes (pencil marks)'), findsOneWidget);
+  });
+
+  testWidgets('Home shows resume card when a save exists', (
+    WidgetTester tester,
+  ) async {
+    final empty = List.generate(9, (_) => List.filled(9, 0));
+    await GameStorage.save(
+      SudokuGame.fromData(
+        difficulty: Difficulty.easy,
+        puzzle: empty.map((r) => List<int>.from(r)).toList(),
+        solution: empty.map((r) => List<int>.from(r)).toList(),
+      ),
+    );
+    await tester.pumpWidget(const SudokuApp());
+    await tester.pumpAndSettle();
+    expect(find.text('Resume Game'), findsOneWidget);
+    await GameStorage.clear();
   });
 
   testWidgets('Action bar exposes tooltips for every action', (

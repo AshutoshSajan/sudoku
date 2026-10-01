@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/sudoku_game.dart';
 
 /// Celebration dialog shown when the player completes the puzzle.
@@ -90,10 +91,7 @@ class WinDialog extends StatelessWidget {
 
               const Text(
                 'Congratulations!',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
@@ -217,17 +215,16 @@ class GameOverDialog extends StatelessWidget {
         return FadeTransition(
           opacity: anim,
           child: ScaleTransition(
-            scale: Tween(begin: 0.9, end: 1.0).animate(
-              CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
-            ),
+            scale: Tween(
+              begin: 0.9,
+              end: 1.0,
+            ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutBack)),
             child: child,
           ),
         );
       },
-      pageBuilder: (context, _, secondaryAnimation) => GameOverDialog(
-        onRetry: onRetry,
-        onHome: onHome,
-      ),
+      pageBuilder: (context, _, secondaryAnimation) =>
+          GameOverDialog(onRetry: onRetry, onHome: onHome),
     );
   }
 

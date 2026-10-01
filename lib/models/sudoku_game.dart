@@ -75,6 +75,22 @@ class CellAction {
     required this.newValue,
     required this.previousNotes,
   });
+
+  Map<String, dynamic> toJson() => {
+    'row': row,
+    'col': col,
+    'previousValue': previousValue,
+    'newValue': newValue,
+    'previousNotes': previousNotes.toList(),
+  };
+
+  factory CellAction.fromJson(Map<String, dynamic> json) => CellAction(
+    row: json['row'] as int,
+    col: json['col'] as int,
+    previousValue: json['previousValue'] as int,
+    newValue: json['newValue'] as int,
+    previousNotes: (json['previousNotes'] as List).map((e) => e as int).toSet(),
+  );
 }
 
 /// Core Sudoku game state and logic.
@@ -97,6 +113,9 @@ class SudokuGame {
   final List<CellAction> _undoStack = [];
   final Stopwatch _stopwatch = Stopwatch();
   final Random _random = Random();
+
+  /// Play time accumulated before the current timer run (restored saves).
+  Duration elapsedOffset = Duration.zero;
 
   SudokuGame(this.difficulty)
     : hintsRemaining = difficulty.allowsHints ? 3 : 0 {
@@ -125,13 +144,85 @@ class SudokuGame {
     );
   }
 
+  /// Serializes the full game state for autosave.
+  Map<String, dynamic> toJson() => {
+    'version': 1,
+    'difficulty': difficulty.name,
+    'board': board,
+    'solution': solution,
+    'given': given,
+    'notes': notes
+        .map((row) => row.map((cell) => cell.toList()).toList())
+        .toList(),
+    'selectedRow': selectedRow,
+    'selectedCol': selectedCol,
+    'isNotesMode': isNotesMode,
+    'mistakes': mistakes,
+    'hintsRemaining': hintsRemaining,
+    'isCompleted': isCompleted,
+    'isGameOver': isGameOver,
+    'elapsedMs': elapsed.inMilliseconds,
+    'undoStack': _undoStack.map((a) => a.toJson()).toList(),
+  };
+
+  /// Restores a game previously saved with [toJson]. Returns null when the
+  /// data is missing, stale (unknown version), corrupt, or already finished.
+  static SudokuGame? fromJson(Map<String, dynamic> json) {
+    try {
+      if (json['version'] != 1) return null;
+      List<List<int>> intGrid(Object? value) => (value as List)
+          .map((row) => (row as List).map((e) => e as int).toList())
+          .toList();
+      final game = SudokuGame.fromData(
+        difficulty: Difficulty.values.byName(json['difficulty'] as String),
+        puzzle: intGrid(json['board']),
+        solution: intGrid(json['solution']),
+      );
+      final givens = (json['given'] as List)
+          .map((row) => (row as List).map((e) => e as bool).toList())
+          .toList();
+      final savedNotes = (json['notes'] as List)
+          .map(
+            (row) => (row as List)
+                .map((cell) => (cell as List).map((e) => e as int).toSet())
+                .toList(),
+          )
+          .toList();
+      for (int r = 0; r < 9; r++) {
+        for (int c = 0; c < 9; c++) {
+          game.given[r][c] = givens[r][c];
+          game.notes[r][c] = savedNotes[r][c];
+        }
+      }
+      game.selectedRow = json['selectedRow'] as int;
+      game.selectedCol = json['selectedCol'] as int;
+      game.isNotesMode = json['isNotesMode'] as bool;
+      game.mistakes = json['mistakes'] as int;
+      game.hintsRemaining = json['hintsRemaining'] as int;
+      game.isCompleted = json['isCompleted'] as bool? ?? false;
+      game.isGameOver = json['isGameOver'] as bool? ?? false;
+      game.elapsedOffset = Duration(
+        milliseconds: json['elapsedMs'] as int? ?? 0,
+      );
+      game._undoStack.addAll(
+        (json['undoStack'] as List? ?? []).map(
+          (e) => CellAction.fromJson(Map<String, dynamic>.from(e as Map)),
+        ),
+      );
+      if (game.isCompleted || game.isGameOver) return null;
+      return game;
+    } catch (_) {
+      return null;
+    }
+  }
+
   // ── Timer ──────────────────────────────────────────────────────────
 
-  Duration get elapsed => _stopwatch.elapsed;
+  Duration get elapsed => _stopwatch.elapsed + elapsedOffset;
   bool get isPaused => !_stopwatch.isRunning;
 
   String get formattedTime {
-    final d = _stopwatch.elapsed;
+    final d = elapsed;
     final m = d.inMinutes.toString().padLeft(2, '0');
     final s = (d.inSeconds % 60).toString().padLeft(2, '0');
     return '$m:$s';

@@ -1,35 +1,76 @@
 import 'package:flutter/material.dart';
 
 import '../models/sudoku_game.dart';
+import '../services/game_storage.dart';
 import 'game_screen.dart';
 import 'help_screen.dart';
 
 /// The landing screen with app branding and difficulty selection cards.
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final VoidCallback onToggleTheme;
 
   const HomeScreen({super.key, required this.onToggleTheme});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  Future<SaveSummary?>? _saveFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshSave();
+  }
+
+  void _refreshSave() {
+    final future = GameStorage.summary();
+    setState(() {
+      _saveFuture = future;
+    });
+  }
+
   void _startGame(BuildContext context, Difficulty difficulty) {
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            GameScreen(difficulty: difficulty),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween(begin: const Offset(0.05, 0), end: Offset.zero)
-                  .animate(
-                    CurvedAnimation(parent: animation, curve: Curves.easeOut),
-                  ),
-              child: child,
-            ),
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 350),
-      ),
-    );
+    Navigator.of(context)
+        .push(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                GameScreen(difficulty: difficulty),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position:
+                          Tween(
+                            begin: const Offset(0.05, 0),
+                            end: Offset.zero,
+                          ).animate(
+                            CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeOut,
+                            ),
+                          ),
+                      child: child,
+                    ),
+                  );
+                },
+            transitionDuration: const Duration(milliseconds: 350),
+          ),
+        )
+        .then((_) => _refreshSave());
+  }
+
+  void _resumeGame(BuildContext context, SaveSummary save) {
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (_) =>
+                GameScreen(difficulty: save.difficulty, resume: true),
+          ),
+        )
+        .then((_) => _refreshSave());
   }
 
   @override
@@ -83,7 +124,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           IconButton(
-                            onPressed: onToggleTheme,
+                            onPressed: widget.onToggleTheme,
                             tooltip: isDark
                                 ? 'Switch to light theme'
                                 : 'Switch to dark theme',
@@ -168,6 +209,24 @@ class HomeScreen extends StatelessWidget {
 
                       const Spacer(flex: 3),
 
+                      // ── Resume card (only when a save exists) ──
+                      FutureBuilder<SaveSummary?>(
+                        future: _saveFuture,
+                        builder: (context, snapshot) {
+                          final save = snapshot.data;
+                          if (save == null) {
+                            return const SizedBox.shrink();
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 18),
+                            child: _ResumeCard(
+                              save: save,
+                              onTap: () => _resumeGame(context, save),
+                            ),
+                          );
+                        },
+                      ),
+
                       // ── Difficulty selection ──
                       Text(
                         'Select Difficulty',
@@ -200,6 +259,90 @@ class HomeScreen extends StatelessWidget {
                   );
                 },
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Card offering to resume the autosaved game.
+class _ResumeCard extends StatelessWidget {
+  final SaveSummary save;
+  final VoidCallback onTap;
+
+  const _ResumeCard({required this.save, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                theme.colorScheme.primary.withAlpha(35),
+                theme.colorScheme.tertiary.withAlpha(35),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: theme.colorScheme.primary.withAlpha(60)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.play_arrow_rounded,
+                    color: theme.colorScheme.onPrimary,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Resume Game',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${save.difficulty.label} · ${save.formattedTime} · '
+                        '${save.mistakes} ${save.mistakes == 1 ? 'mistake' : 'mistakes'}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: theme.colorScheme.onSurface.withAlpha(110),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: theme.colorScheme.onSurface.withAlpha(80),
+                  size: 22,
+                ),
+              ],
             ),
           ),
         ),
