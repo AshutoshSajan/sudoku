@@ -130,12 +130,16 @@ jobs:
           rm -rf extension/app && mkdir extension/app
           cp -r build/web/. extension/app/
           rm -f extension/app/flutter_service_worker.js
+      # Listed submissions need human review (days), so submit without
+      # waiting. AMO signs automatically once approved; there is no .xpi
+      # artifact for listed versions before that.
       - run: >
           npx -y web-ext@10 sign --source-dir=extension
           --api-key ${{ secrets.AMO_API_KEY }}
           --api-secret ${{ secrets.AMO_API_SECRET }}
           --channel listed
           --amo-metadata extension/amo-metadata.json
+          --approval-timeout 0
       - name: Commit version bump
         run: |
           git config user.name "github-actions[bot]"
@@ -143,7 +147,3 @@ jobs:
           git add extension/manifest.json
           git diff --cached --quiet || git commit -m "chore(extension): bump store version [skip ci]"
           git push
-      - uses: actions/upload-artifact@v7
-        with:
-          name: sudoku-firefox-xpi
-          path: web-ext-artifacts/*.xpi
