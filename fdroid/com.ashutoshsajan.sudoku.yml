@@ -6,7 +6,7 @@
 # PLEASE REMOVE ALL COMMENTS BEFORE SUBMITTING TO F-DROID DATA!
 
 Categories:
-  - Games
+  - Puzzle Game
 License: GPL-3.0-only
 WebSite: https://solve-sudoku.netlify.app
 SourceCode: https://github.com/AshutoshSajan/sudoku
@@ -19,9 +19,9 @@ RepoType: git
 Repo: https://github.com/AshutoshSajan/sudoku.git
 
 Builds:
-  - versionName: 1.1.0
-    versionCode: 2
-    commit: v1.1.0
+  - versionName: 1.2.0
+    versionCode: 3
+    commit: v1.2.0
     output: build/app/outputs/flutter-apk/app-release.apk
     srclibs:
       - flutter@3.47.2
@@ -37,8 +37,8 @@ Builds:
       - $$flutter$$/bin/flutter packages pub get
       - $$flutter$$/bin/flutter build apk
 
-AutoUpdateMode: Version v%v
+AutoUpdateMode: Version
 UpdateCheckMode: Tags
-UpdateCheckData: pubspec.yaml|version:\s.++(\d+)|.|version:\s(.+)+
-CurrentVersion: 1.1.0
-CurrentVersionCode: 2
+UpdateCheckData: pubspec.yaml|version:\s.+\+(\d+)|.|version:\s(.+)\+
+CurrentVersion: 1.2.0
+CurrentVersionCode: 3

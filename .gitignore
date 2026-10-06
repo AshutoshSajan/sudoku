@@ -68,3 +68,9 @@ extension/app/
 # web-ext local upload state (transient, machine-specific)
 .amo-upload-uuid
 web-ext-artifacts/
+
+# snapcraft build outputs
+*.snap
+/parts/
+/stage/
+/prime/
