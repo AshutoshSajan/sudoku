@@ -24,7 +24,7 @@ jobs:
 
   changelog:
     needs: verify
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: write
     runs-on: ubuntu-latest
