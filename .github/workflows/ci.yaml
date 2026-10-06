@@ -5,6 +5,15 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Manual extension release: Actions tab → CI → Run workflow.
+  # Store publishing runs ONLY from here, never on plain merges.
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'AMO channel'
+        type: choice
+        default: listed
+        options: [listed, unlisted]
 
 jobs:
   verify:
@@ -48,7 +57,7 @@ jobs:
   #
   # publish-chrome:
   #   needs: verify
-  #   if: github.ref == 'refs/heads/main'
+  #   if: github.event_name == 'workflow_dispatch'
   #   permissions:
   #     contents: write
   #   runs-on: ubuntu-latest
@@ -99,7 +108,7 @@ jobs:
 
   publish-firefox:
     needs: verify
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch'
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -161,7 +170,7 @@ jobs:
           npx -y web-ext@10 sign --source-dir=extension
           --api-key ${{ secrets.AMO_API_KEY }}
           --api-secret ${{ secrets.AMO_API_SECRET }}
-          --channel listed
+          --channel ${{ inputs.channel }}
           --amo-metadata extension/amo-metadata.json
           --approval-timeout 0
       - name: Commit version bump
