@@ -28,6 +28,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Update changelog [skip ci] ([ae89c97](https://github.com/AshutoshSajan/sudoku/commit/ae89c979778687019a421b3b9352a3bc0c4ca0e8))
 - Update changelog [skip ci] ([8ef925f](https://github.com/AshutoshSajan/sudoku/commit/8ef925f735de41e6a7ab36338920134ea95aae6d))
 - Update changelog [skip ci] ([6e0b501](https://github.com/AshutoshSajan/sudoku/commit/6e0b501ce0480c53edd8cb27959248a686a07db1))
+- Update changelog [skip ci] ([0e6b4bc](https://github.com/AshutoshSajan/sudoku/commit/0e6b4bc0097af75a4027f8155ed3f4f363953d2b))
 
 ### Miscellaneous
 
@@ -41,6 +42,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Auto-bump extension version on every store publish ([a0e4874](https://github.com/AshutoshSajan/sudoku/commit/a0e4874ab0ad1284d0766b65b13f9d3303cfb8ca))
 - Submit Firefox listed versions without waiting for review ([09f225b](https://github.com/AshutoshSajan/sudoku/commit/09f225bf0af9967cbf9784c7b4f19bef3fa9105c))
 - Bump extension past highest AMO version ([227c75e](https://github.com/AshutoshSajan/sudoku/commit/227c75e9fe031c118c8206fb51785a80c6fa424b))
+- Trigger on main branch only ([34a8ebc](https://github.com/AshutoshSajan/sudoku/commit/34a8ebc40701c87e45434c9ff8fca10a1506b2c7))
 
 ## [1.1.0] - 2026-10-01
 
