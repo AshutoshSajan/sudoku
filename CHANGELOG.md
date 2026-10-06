@@ -18,6 +18,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 - Update changelog [skip ci] ([2136e18](https://github.com/AshutoshSajan/sudoku/commit/2136e18c8c96eda2f3a89bb3bab91f08cb21ce11))
 - Update changelog [skip ci] ([97e1738](https://github.com/AshutoshSajan/sudoku/commit/97e1738b40e6bf7e763d31e035a8d0c8208bf358))
+- Update changelog [skip ci] ([a1e8baa](https://github.com/AshutoshSajan/sudoku/commit/a1e8baae5e3ce68cdf31f33a102e8ec84da05707))
 
 ### Miscellaneous
 
@@ -26,6 +27,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 ### Other
 
 - Run changelog job on main pushes only ([6a4e1e4](https://github.com/AshutoshSajan/sudoku/commit/6a4e1e4b8b0b2220297a7b82c18c5daf4414189e))
+- On-demand snap build with artifact upload ([de27ff0](https://github.com/AshutoshSajan/sudoku/commit/de27ff0d64e24bf9366f93386d2b85502e0fc9b1))
 
 ## [1.2.0] - 2026-10-06
 
