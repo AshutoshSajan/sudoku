@@ -5,9 +5,23 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ## [unreleased]
 
+### Features
+
+- *(snap)* Add Snap Store packaging for Linux ([04fbadd](https://github.com/AshutoshSajan/sudoku/commit/04fbadd184ba0501dab885c39ec9dd40aab9bad8))
+
+### Bug Fixes
+
+- *(fdroid)* Valid category and auto-update mode ([5542ed3](https://github.com/AshutoshSajan/sudoku/commit/5542ed3358e03535628139c955069f9c4be5592b))
+- *(fdroid)* Canonical recipe matching submitted MR ([1bd5598](https://github.com/AshutoshSajan/sudoku/commit/1bd559833af06ccb1c3d6bd5b453bcabbe0cb156))
+
 ### Documentation
 
 - Update changelog [skip ci] ([2136e18](https://github.com/AshutoshSajan/sudoku/commit/2136e18c8c96eda2f3a89bb3bab91f08cb21ce11))
+- Update changelog [skip ci] ([97e1738](https://github.com/AshutoshSajan/sudoku/commit/97e1738b40e6bf7e763d31e035a8d0c8208bf358))
+
+### Miscellaneous
+
+- *(snap)* Rename to sudoku-puzzle-game ([9ee165f](https://github.com/AshutoshSajan/sudoku/commit/9ee165fbc578dbd86dacb4f07c0d21ef89f549c4))
 
 ### Other
 
