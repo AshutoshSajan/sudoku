@@ -3,12 +3,11 @@
 #   sudo snap install snapcraft --classic
 #   sudo snap install lxd && sudo lxd init && sudo usermod -a -G lxd $USER
 #   snapcraft --use-lxd          # from the project root
-# Publish (needs a Snap Store account; `sudoku` may be taken —
-# fall back to e.g. sudoku-game and rename here + below):
-#   snapcraft register sudoku
-#   snapcraft upload sudoku_1.2.0_amd64.snap --release=edge
+# Publish (needs a Snap Store account):
+#   snapcraft register sudoku-puzzle-game
+#   snapcraft upload sudoku-puzzle-game_1.2.0_amd64.snap --release=edge
 # Keep `version` in sync with pubspec.yaml.
-name: sudoku
+name: sudoku-puzzle-game
 version: '1.2.0'
 summary: A beautiful, modern Sudoku puzzle game
 description: |
