@@ -1,0 +1,41 @@
+# Snap packaging for the Linux desktop build.
+# Build on Ubuntu 18.04+ with snapcraft + LXD:
+#   sudo snap install snapcraft --classic
+#   sudo snap install lxd && sudo lxd init && sudo usermod -a -G lxd $USER
+#   snapcraft --use-lxd          # from the project root
+# Publish (needs a Snap Store account; `sudoku` may be taken —
+# fall back to e.g. sudoku-game and rename here + below):
+#   snapcraft register sudoku
+#   snapcraft upload sudoku_1.2.0_amd64.snap --release=edge
+# Keep `version` in sync with pubspec.yaml.
+name: sudoku
+version: '1.2.0'
+summary: A beautiful, modern Sudoku puzzle game
+description: |
+  Sudoku is a beautiful, modern puzzle game: 4 difficulty levels,
+  pencil-mark notes, hints, undo, dark mode. Fully offline, no ads,
+  no tracking. Free and open source (GPL-3.0).
+confinement: strict
+base: core22
+grade: stable
+
+slots:
+  dbus-sudoku:
+    interface: dbus
+    bus: session
+    name: com.ashutoshsajan.sudoku
+
+apps:
+  sudoku:
+    command: sudoku
+    extensions: [gnome]
+    plugs:
+      - network
+    slots:
+      - dbus-sudoku
+
+parts:
+  sudoku:
+    source: .
+    plugin: flutter
+    flutter-target: lib/main.dart
