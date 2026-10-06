@@ -57,11 +57,14 @@ CI runs both on every push and PR.
 Release builds of the popup extension live in `extension/` (sources only —
 `extension/app/` is generated, see `extension/README.md`).
 
+- **Releasing:** push a tag like `ext-v1.2.0` — CI takes the version
+  from the tag (raised past anything already on the store) and publishes.
+  Plain merges only verify, never publish.
 - **Chrome Web Store:** set repo secrets `CHROME_EXTENSION_ID`,
   `CHROME_CLIENT_ID`, `CHROME_CLIENT_SECRET`, `CHROME_REFRESH_TOKEN`, then
   uncomment the `publish-chrome` job in `.github/workflows/ci.yaml`.
-- **Firefox AMO:** set secrets `AMO_API_KEY`, `AMO_API_SECRET`, then uncomment
-  the `publish-firefox` job. Use `--channel listed` for public listing,
-  `unlisted` for self-distributed signed `.xpi`.
+- **Firefox AMO:** set secrets `AMO_API_KEY`, `AMO_API_SECRET` — the
+  `publish-firefox` job is already active. It submits `--channel listed`;
+  use `unlisted` in `web-ext sign` for a self-distributed signed `.xpi`.
 - Manual fallback (no CI): follow `extension/README.md`
   (`web-ext sign` / store upload by hand).
