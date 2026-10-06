@@ -9,6 +9,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 - *(fdroid)* Fastlane metadata and submission recipe draft ([5f746d0](https://github.com/AshutoshSajan/sudoku/commit/5f746d000fb04301d04c2e13bc68c513455f0c30))
 - *(save)* Autosave game with resume from home screen ([f666b11](https://github.com/AshutoshSajan/sudoku/commit/f666b115a790d8255e793487973981c622af505a))
+- *(fdroid)* Add phone screenshots for store listing ([bdfc48d](https://github.com/AshutoshSajan/sudoku/commit/bdfc48d50dcd7f460cceedbc7e0a2bca60fc34fa))
 
 ### Bug Fixes
 
@@ -26,6 +27,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Update changelog [skip ci] ([b0dba28](https://github.com/AshutoshSajan/sudoku/commit/b0dba28d0d522da33858d4ae1503e2c008e44165))
 - Update changelog [skip ci] ([ae89c97](https://github.com/AshutoshSajan/sudoku/commit/ae89c979778687019a421b3b9352a3bc0c4ca0e8))
 - Update changelog [skip ci] ([8ef925f](https://github.com/AshutoshSajan/sudoku/commit/8ef925f735de41e6a7ab36338920134ea95aae6d))
+- Update changelog [skip ci] ([6e0b501](https://github.com/AshutoshSajan/sudoku/commit/6e0b501ce0480c53edd8cb27959248a686a07db1))
 
 ### Miscellaneous
 
@@ -38,6 +40,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Enable Firefox add-on auto-publishing on main ([ee424e2](https://github.com/AshutoshSajan/sudoku/commit/ee424e2b0637dc139b9eec388ae1942d4dec3213))
 - Auto-bump extension version on every store publish ([a0e4874](https://github.com/AshutoshSajan/sudoku/commit/a0e4874ab0ad1284d0766b65b13f9d3303cfb8ca))
 - Submit Firefox listed versions without waiting for review ([09f225b](https://github.com/AshutoshSajan/sudoku/commit/09f225bf0af9967cbf9784c7b4f19bef3fa9105c))
+- Bump extension past highest AMO version ([227c75e](https://github.com/AshutoshSajan/sudoku/commit/227c75e9fe031c118c8206fb51785a80c6fa424b))
 
 ## [1.1.0] - 2026-10-01
 
