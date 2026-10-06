@@ -3,6 +3,16 @@
 All notable changes to Sudoku are documented here, generated automatically
 from Conventional Commits by [git-cliff](https://git-cliff.org).
 
+## [unreleased]
+
+### Documentation
+
+- Update changelog [skip ci] ([2136e18](https://github.com/AshutoshSajan/sudoku/commit/2136e18c8c96eda2f3a89bb3bab91f08cb21ce11))
+
+### Other
+
+- Run changelog job on main pushes only ([6a4e1e4](https://github.com/AshutoshSajan/sudoku/commit/6a4e1e4b8b0b2220297a7b82c18c5daf4414189e))
+
 ## [1.2.0] - 2026-10-06
 
 ### Features
