@@ -1,0 +1,1 @@
+Autosave with resume, keyboard support, in-game help, responsive layouts, and F-Droid packaging.
