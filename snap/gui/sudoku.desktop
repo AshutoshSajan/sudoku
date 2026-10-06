@@ -2,7 +2,7 @@
 Name=Sudoku
 GenericName=Sudoku puzzle game
 Comment=A beautiful, modern Sudoku puzzle game
-Exec=sudoku
+Exec=sudoku-puzzle-game.sudoku
 Icon=${SNAP}/meta/gui/icon.png
 Terminal=false
 Type=Application
