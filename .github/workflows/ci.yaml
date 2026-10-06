@@ -104,17 +104,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Bump extension version
+      # Bumps past both the repo version and every version already on
+      # AMO, so manual submissions from outside CI can never collide.
+      - name: Bump extension version past AMO
         run: |
           python3 - <<'EOF'
           import json
+          import urllib.request
+
+          def parse(v):
+              try:
+                  return tuple(int(x) for x in str(v).split('.'))
+              except ValueError:
+                  return (0, 0, 0)
+
           path = 'extension/manifest.json'
           with open(path) as f:
               manifest = json.load(f)
-          major, minor, patch = (
-              int(x) for x in manifest['version'].split('.')
-          )
-          manifest['version'] = f'{major}.{minor}.{patch + 1}'
+          repo = parse(manifest['version'])
+          try:
+              with urllib.request.urlopen(
+                  'https://addons.mozilla.org/api/v5/addons/'
+                  'addon/sudoku@ashutoshsajan/versions/',
+                  timeout=30,
+              ) as r:
+                  data = json.load(r)
+              amo = max(
+                  (parse(v['version']) for v in data.get('results', [])),
+                  default=(0, 0, 0),
+              )
+          except Exception as e:
+              print(f'AMO check failed ({e}), bumping repo version only')
+              amo = (0, 0, 0)
+          base = max(repo, amo)
+          manifest['version'] = f'{base[0]}.{base[1]}.{base[2] + 1}'
           with open(path, 'w') as f:
               json.dump(manifest, f, indent=2)
               f.write('\n')
