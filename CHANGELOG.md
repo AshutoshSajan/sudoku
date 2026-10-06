@@ -3,7 +3,7 @@
 All notable changes to Sudoku are documented here, generated automatically
 from Conventional Commits by [git-cliff](https://git-cliff.org).
 
-## [unreleased]
+## [1.2.0] - 2026-10-06
 
 ### Features
 
@@ -31,12 +31,14 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Update changelog [skip ci] ([0e6b4bc](https://github.com/AshutoshSajan/sudoku/commit/0e6b4bc0097af75a4027f8155ed3f4f363953d2b))
 - Update changelog [skip ci] ([953c90c](https://github.com/AshutoshSajan/sudoku/commit/953c90c743bdd53c524d49304e158f903c53d2ec))
 - Update changelog [skip ci] ([6230f4c](https://github.com/AshutoshSajan/sudoku/commit/6230f4cff99a0d494d7a53d18b2eabc0b63c8745))
+- Update changelog [skip ci] ([b383652](https://github.com/AshutoshSajan/sudoku/commit/b3836523a25f210c27dcc90b82758046f2d398d7))
 
 ### Miscellaneous
 
 - *(extension)* Add AMO listing metadata for Firefox sign ([b860a3f](https://github.com/AshutoshSajan/sudoku/commit/b860a3f815c30c5e8970162f17b055cff445dc20))
 - *(extension)* V1.1.0 metadata, slugs, readme polish ([494129a](https://github.com/AshutoshSajan/sudoku/commit/494129ad558887c15e77702e4dbf947759d533b7))
 - *(extension)* Bump to 1.1.1 for AMO resubmission ([9e74fe0](https://github.com/AshutoshSajan/sudoku/commit/9e74fe07e264774d61bc43defb9bef423a0c537e))
+- *(release)* Bump to 1.2.0 for F-Droid ([6914bfd](https://github.com/AshutoshSajan/sudoku/commit/6914bfdfc482d845b878063b981ac8289a1f1aae))
 
 ### Other
 
