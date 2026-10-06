@@ -30,6 +30,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Update changelog [skip ci] ([6e0b501](https://github.com/AshutoshSajan/sudoku/commit/6e0b501ce0480c53edd8cb27959248a686a07db1))
 - Update changelog [skip ci] ([0e6b4bc](https://github.com/AshutoshSajan/sudoku/commit/0e6b4bc0097af75a4027f8155ed3f4f363953d2b))
 - Update changelog [skip ci] ([953c90c](https://github.com/AshutoshSajan/sudoku/commit/953c90c743bdd53c524d49304e158f903c53d2ec))
+- Update changelog [skip ci] ([6230f4c](https://github.com/AshutoshSajan/sudoku/commit/6230f4cff99a0d494d7a53d18b2eabc0b63c8745))
 
 ### Miscellaneous
 
@@ -45,6 +46,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Bump extension past highest AMO version ([227c75e](https://github.com/AshutoshSajan/sudoku/commit/227c75e9fe031c118c8206fb51785a80c6fa424b))
 - Trigger on main branch only ([34a8ebc](https://github.com/AshutoshSajan/sudoku/commit/34a8ebc40701c87e45434c9ff8fca10a1506b2c7))
 - Publish extensions only via manual dispatch ([2e5ccfb](https://github.com/AshutoshSajan/sudoku/commit/2e5ccfb6ffb5eee6eed7459338ddcbcdd1e5e164))
+- Publish extensions from ext-v tags only ([cfa0328](https://github.com/AshutoshSajan/sudoku/commit/cfa03288c58b7a08916e685849af8099c80b81f0))
 
 ## [1.1.0] - 2026-10-01
 
