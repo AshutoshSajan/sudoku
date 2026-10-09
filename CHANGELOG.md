@@ -12,6 +12,8 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ### 🐛 Bug Fixes
 
+- *(fdroid)* Review fixes - gradle checksum, version 4 changelog ([62b7128](https://github.com/AshutoshSajan/sudoku/commit/62b71280056a0afc24c66f9e26157b5517e6faa3))
+- *(android)* Pin Gradle distribution SHA-256 in wrapper ([4beac89](https://github.com/AshutoshSajan/sudoku/commit/4beac89d0d96a1a6be9477a98df34bc91d150180))
 - *(license)* Bundle GPL text into all distributables ([8486e1d](https://github.com/AshutoshSajan/sudoku/commit/8486e1d88060b3456a0c00f9d7b550fd398b8b27))
 - *(changelog)* Use github.contributors context and hide bot accounts ([c71915b](https://github.com/AshutoshSajan/sudoku/commit/c71915b40cac18c8cc989b6019e6754cc4cf8c71))
 - *(ci)* Pass github token to git-cliff as argv for contributors ([6e9f697](https://github.com/AshutoshSajan/sudoku/commit/6e9f697a89a9c7e7155a782a2c9d60fb289b352a))
