@@ -5,6 +5,16 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ## [unreleased]
 
+### Bug Fixes
+
+- *(release)* Stage Flutter lib/ and data/ inside AppImage ([8056031](https://github.com/AshutoshSajan/sudoku/commit/8056031ac757be285d757e20f7a46df10bf0ae49))
+
+### Documentation
+
+- Update changelog [skip ci] ([dd34a47](https://github.com/AshutoshSajan/sudoku/commit/dd34a47bb086b13473bb5e3f3bfbe299db13975a))
+
+## [1.3.0] - 2026-10-09
+
 ### Features
 
 - *(snap)* Add Snap Store packaging for Linux ([04fbadd](https://github.com/AshutoshSajan/sudoku/commit/04fbadd184ba0501dab885c39ec9dd40aab9bad8))
