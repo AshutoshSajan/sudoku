@@ -5,26 +5,44 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ## [unreleased]
 
+### Bug Fixes
+
+- *(release)* Stage Flutter lib/ and data/ inside AppImage ([8056031](https://github.com/AshutoshSajan/sudoku/commit/8056031ac757be285d757e20f7a46df10bf0ae49))
+
+### Documentation
+
+- Update changelog [skip ci] ([dd34a47](https://github.com/AshutoshSajan/sudoku/commit/dd34a47bb086b13473bb5e3f3bfbe299db13975a))
+
+## [1.3.0] - 2026-10-09
+
 ### Features
 
 - *(snap)* Add Snap Store packaging for Linux ([04fbadd](https://github.com/AshutoshSajan/sudoku/commit/04fbadd184ba0501dab885c39ec9dd40aab9bad8))
+- *(release)* One-tag multi-format binary releases ([61d6168](https://github.com/AshutoshSajan/sudoku/commit/61d6168e815f2d4fb0bea22e9b264b99ba843454))
+- *(release)* One-tag multi-format binary releases ([d7e007b](https://github.com/AshutoshSajan/sudoku/commit/d7e007bce0771a9668fe21162b364ed209fa5679))
 
 ### Bug Fixes
 
 - *(fdroid)* Valid category and auto-update mode ([5542ed3](https://github.com/AshutoshSajan/sudoku/commit/5542ed3358e03535628139c955069f9c4be5592b))
 - *(fdroid)* Canonical recipe matching submitted MR ([1bd5598](https://github.com/AshutoshSajan/sudoku/commit/1bd559833af06ccb1c3d6bd5b453bcabbe0cb156))
 - *(snap)* Qualify desktop Exec as snap.app per snap format ([c239a23](https://github.com/AshutoshSajan/sudoku/commit/c239a23d898d19a7fffdacb48c9f61e9716a5eb2))
+- *(release)* AGP 9 signing DSL, nfpm paths, AppImage icon name ([c01ca5b](https://github.com/AshutoshSajan/sudoku/commit/c01ca5b09c776d25e66bdfeddc357cb0c88a14b2))
 
 ### Documentation
 
+- Binary release flow and OS compatibility matrix ([ca678a1](https://github.com/AshutoshSajan/sudoku/commit/ca678a1ba42530932664fd2635cd31ddec4fe6d8))
 - Update changelog [skip ci] ([2136e18](https://github.com/AshutoshSajan/sudoku/commit/2136e18c8c96eda2f3a89bb3bab91f08cb21ce11))
 - Update changelog [skip ci] ([97e1738](https://github.com/AshutoshSajan/sudoku/commit/97e1738b40e6bf7e763d31e035a8d0c8208bf358))
 - Update changelog [skip ci] ([a1e8baa](https://github.com/AshutoshSajan/sudoku/commit/a1e8baae5e3ce68cdf31f33a102e8ec84da05707))
 - Update changelog [skip ci] ([7d0d5ee](https://github.com/AshutoshSajan/sudoku/commit/7d0d5ee11a4b12ccd2ea635848fda5aae32b7b81))
+- Update changelog [skip ci] ([a8e0d1f](https://github.com/AshutoshSajan/sudoku/commit/a8e0d1f9fe1786299f7779963037dd2fdff3818d))
+- Update changelog [skip ci] ([202763b](https://github.com/AshutoshSajan/sudoku/commit/202763bba920240e4c01327f60bd078b64596099))
+- Update changelog [skip ci] ([98563eb](https://github.com/AshutoshSajan/sudoku/commit/98563eb5d5c79265c344555a5bc8ed375f001499))
 
 ### Miscellaneous
 
 - *(snap)* Rename to sudoku-puzzle-game ([9ee165f](https://github.com/AshutoshSajan/sudoku/commit/9ee165fbc578dbd86dacb4f07c0d21ef89f549c4))
+- *(release)* Bump version to 1.3.0 ([fe5ee23](https://github.com/AshutoshSajan/sudoku/commit/fe5ee23cc9a83267530246d169dd0dac9f0eb86e))
 
 ### Other
 
@@ -32,6 +50,9 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - On-demand snap build with artifact upload ([de27ff0](https://github.com/AshutoshSajan/sudoku/commit/de27ff0d64e24bf9366f93386d2b85502e0fc9b1))
 - Pin ubuntu-24.04 runners ([b930eb7](https://github.com/AshutoshSajan/sudoku/commit/b930eb7f9e5076dcf687524fd6a4a8e864dc88f7))
 - Pin runner in commented chrome job too ([bc659fb](https://github.com/AshutoshSajan/sudoku/commit/bc659fbe47af786e80420225bac4e4a1a727fc71))
+- *(codeql)* Advanced setup on pinned ubuntu-24.04 with v4 actions ([7fa27ec](https://github.com/AshutoshSajan/sudoku/commit/7fa27ecef1a5a18335208a64ba20ed8296f31d54))
+- *(android)* Sign release with upload keystore from secrets ([f41ab88](https://github.com/AshutoshSajan/sudoku/commit/f41ab886883b287ff60df289ba37ed6b87e5fe1b))
+- *(codeql)* Single pinned workflow, drop GitHub-generated duplicate ([2023fa5](https://github.com/AshutoshSajan/sudoku/commit/2023fa5381700b9562261016be5d9b9729df16cf))
 
 ## [1.2.0] - 2026-10-06
 
