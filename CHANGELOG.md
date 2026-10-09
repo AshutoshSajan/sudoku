@@ -5,6 +5,10 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ## [unreleased]
 
+### 🚀 Features
+
+- *(release)* Per-artifact dry-runs and partial-success publishing ([140fb43](https://github.com/AshutoshSajan/sudoku/commit/140fb4322e89dcb243d5802b881d0b6e676bfabb))
+
 ### 🐛 Bug Fixes
 
 - *(changelog)* Use github.contributors context and hide bot accounts ([c71915b](https://github.com/AshutoshSajan/sudoku/commit/c71915b40cac18c8cc989b6019e6754cc4cf8c71))
