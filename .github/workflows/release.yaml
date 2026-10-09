@@ -1,0 +1,332 @@
+name: Release
+
+# One-tag binary releases: push `vX.Y.Z` on main (or dispatch manually
+# for a dry run) and every distributable is built and attached to the
+# GitHub Release. Extension tags (`ext-v*`) are NOT matched here.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version X.Y.Z override (defaults to tag, else pubspec)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+  resolve-version:
+    needs: verify
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      build-number: ${{ steps.ver.outputs.build-number }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: ver
+        run: |
+          python3 - <<'EOF'
+          import os
+          import re
+
+          ref = os.environ.get('GITHUB_REF', '')
+          ref_name = os.environ.get('GITHUB_REF_NAME', '')
+          override = os.environ.get(
+              'INPUT_VERSION', os.environ.get('VERSION_INPUT', '')).strip()
+
+          version = ''
+          if ref.startswith('refs/tags/'):
+              m = re.fullmatch(r'v(\d+\.\d+\.\d+)', ref_name)
+              # ext-v* tags must never drive an app release.
+              if not m:
+                  raise SystemExit(
+                      f"Tag {ref_name!r} is not a vX.Y.Z app release tag")
+              version = m.group(1)
+          if not version:
+              version = override
+          if not version:
+              with open('pubspec.yaml') as f:
+                  pub = f.read()
+              version = re.search(
+                  r'^version:\s*(\d+\.\d+\.\d+)',
+                  pub, re.M).group(1)
+          if not re.fullmatch(r'\d+\.\d+\.\d+', version):
+              raise SystemExit(f'Invalid version {version!r}')
+
+          out = os.environ['GITHUB_OUTPUT']
+          with open(out, 'a') as f:
+              f.write(f"version={version}\n")
+              f.write(f"build-number={os.environ['GITHUB_RUN_NUMBER']}\n")
+          print(f'Releasing version {version}')
+          EOF
+
+  build-android:
+    needs: resolve-version
+    runs-on: ubuntu-24.04
+    env:
+      VERSION: ${{ needs.resolve-version.outputs.version }}
+      BUILD_NUMBER: ${{ needs.resolve-version.outputs.build-number }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      # NOTE: debug-signed until an upload keystore is configured
+      # (see README). Sideload works; Play upgrade path needs resign.
+      - run: >
+          flutter build apk --release --split-per-abi
+          --build-name=$VERSION --build-number=$BUILD_NUMBER
+      - run: >
+          flutter build apk --release
+          --build-name=$VERSION --build-number=$BUILD_NUMBER
+      - run: >
+          flutter build appbundle --release
+          --build-name=$VERSION --build-number=$BUILD_NUMBER
+      - run: |
+          mkdir -p dist
+          mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk \
+            dist/sudoku-$VERSION-android-armv7.apk
+          mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
+            dist/sudoku-$VERSION-android-arm64.apk
+          mv build/app/outputs/flutter-apk/app-x86_64-release.apk \
+            dist/sudoku-$VERSION-android-x86_64.apk
+          mv build/app/outputs/flutter-apk/app-release.apk \
+            dist/sudoku-$VERSION-android-universal.apk
+          mv build/app/outputs/bundle/release/app-release.aab \
+            dist/sudoku-$VERSION.aab
+          ls dist/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: android-dist
+          path: dist/
+
+  build-linux:
+    needs: resolve-version
+    runs-on: ubuntu-24.04
+    env:
+      VERSION: ${{ needs.resolve-version.outputs.version }}
+      BUILD_NUMBER: ${{ needs.resolve-version.outputs.build-number }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: >
+          sudo apt-get update -qq &&
+          sudo apt-get install -y -qq clang cmake ninja-build pkg-config
+          libgtk-3-dev liblzma-dev
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: >
+          flutter build linux --release
+          --build-name=$VERSION --build-number=$BUILD_NUMBER
+      - name: Install nfpm (latest release)
+        run: |
+          tag=$(gh api repos/goreleaser/nfpm/releases/latest --jq .tag_name)
+          curl -sSL -o /tmp/nfpm.tar.gz \
+            "https://github.com/goreleaser/nfpm/releases/download/$tag/nfpm_${tag#v}_Linux_x86_64.tar.gz"
+          tar -xzf /tmp/nfpm.tar.gz -C /tmp nfpm
+          sudo install -m 0755 /tmp/nfpm /usr/local/bin/nfpm
+          nfpm --version
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - run: |
+          mkdir -p dist
+          sed "s/@VERSION@/$VERSION/g" packaging/nfpm.yaml.in > packaging/nfpm.yaml
+          nfpm package --config packaging/nfpm.yaml --packager deb --target dist/
+          nfpm package --config packaging/nfpm.yaml --packager rpm --target dist/
+          tar -czf dist/sudoku-$VERSION-linux-x64.tar.gz \
+            -C build/linux/x64/release bundle
+          ls dist/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: linux-dist
+          path: dist/
+
+  build-appimage:
+    needs: resolve-version
+    # glibc floor: 24.04-built AppImages won't run on older distros.
+    runs-on: ubuntu-22.04
+    env:
+      VERSION: ${{ needs.resolve-version.outputs.version }}
+      BUILD_NUMBER: ${{ needs.resolve-version.outputs.build-number }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: >
+          sudo apt-get update -qq &&
+          sudo apt-get install -y -qq clang cmake ninja-build pkg-config
+          libgtk-3-dev liblzma-dev
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: >
+          flutter build linux --release
+          --build-name=$VERSION --build-number=$BUILD_NUMBER
+      - name: Fetch linuxdeploy + appimagetool
+        run: |
+          mkdir -p tools dist
+          curl -sSL -o tools/linuxdeploy \
+            https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          curl -sSL -o tools/appimagetool \
+            https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x tools/linuxdeploy tools/appimagetool
+      - run: |
+          export PATH="$PWD/tools:$PATH"
+          export APPIMAGE_EXTRACT_AND_RUN=1
+          ./tools/linuxdeploy --appdir AppDir \
+            -e build/linux/x64/release/bundle/sudoku \
+            -d packaging/sudoku.desktop \
+            -i web/icons/Icon-512.png \
+            --output appimage
+          mv Sudoku-*.AppImage dist/Sudoku-$VERSION-x86_64.AppImage
+          ./dist/Sudoku-$VERSION-x86_64.AppImage --appimage-extract >/dev/null
+          test -x squashfs-root/AppRun
+          ls dist/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: appimage-dist
+          path: dist/
+
+  build-windows:
+    needs: resolve-version
+    runs-on: windows-latest
+    env:
+      VERSION: ${{ needs.resolve-version.outputs.version }}
+      BUILD_NUMBER: ${{ needs.resolve-version.outputs.build-number }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: >
+          flutter build windows --release
+          --build-name=$env:VERSION --build-number=$env:BUILD_NUMBER
+      - run: mkdir dist
+      - name: Portable zip
+        run: >
+          Compress-Archive
+          -Path build\windows\x64\runner\Release\*
+          -DestinationPath dist\sudoku-$env:VERSION-windows-x64-portable.zip
+      # No EV cert for v1: SmartScreen will warn. Portable zip is the
+      # no-friction alternative; signing is a documented follow-up.
+      - name: Inno Setup installer
+        run: |
+          choco install innosetup -y --no-progress
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" `
+            /DAppVersion=$env:VERSION `
+            /Odist /Fsudoku-$env:VERSION-windows-x64-setup `
+            packaging\inno\sudoku.iss
+          Get-ChildItem dist\
+      - uses: actions/upload-artifact@v7
+        with:
+          name: windows-dist
+          path: dist/
+
+  build-web:
+    needs: resolve-version
+    runs-on: ubuntu-24.04
+    env:
+      VERSION: ${{ needs.resolve-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build web --release
+      - run: |
+          mkdir -p dist
+          cd build && zip -qr ../dist/sudoku-$VERSION-web.zip web
+          ls ../dist/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: web-dist
+          path: dist/
+
+  build-snap:
+    needs: resolve-version
+    runs-on: ubuntu-24.04
+    env:
+      VERSION: ${{ needs.resolve-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Fail on snapcraft.yaml version drift
+        run: |
+          snap_ver=$(grep -Po "^version:\s*'\K[^']+" snap/snapcraft.yaml)
+          test "$snap_ver" = "$VERSION" || {
+            echo "snap/snapcraft.yaml ($snap_ver) != tag ($VERSION)."
+            echo "Bump snap version before tagging."
+            exit 1
+          }
+      - uses: snapcore/action-build@v1
+        id: build
+      - run: |
+          mkdir -p dist
+          cp "${{ steps.build.outputs.snap }}" dist/
+          ls dist/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: snap-dist
+          path: dist/
+
+  publish:
+    needs:
+      - resolve-version
+      - build-android
+      - build-linux
+      - build-appimage
+      - build-windows
+      - build-web
+      - build-snap
+    permissions:
+      contents: write
+    runs-on: ubuntu-24.04
+    env:
+      VERSION: ${{ needs.resolve-version.outputs.version }}
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: '*-dist'
+          path: dist
+          merge-multiple: true
+      - run: |
+          ls -R dist
+          (cd dist && sha256sum -- * > SHA256SUMS.txt)
+          cat dist/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v7
+        with:
+          name: checksums
+          path: dist/SHA256SUMS.txt
+      # Manual dispatches validate the full pipeline without cutting
+      # a public release; only real v* tags publish.
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          name: Sudoku ${{ env.VERSION }}
+          generate_release_notes: true
+          files: dist/*

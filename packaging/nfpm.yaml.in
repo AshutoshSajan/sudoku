@@ -1,0 +1,20 @@
+# Packaged by nFPM (see release.yaml). @VERSION@ is stamped by CI.
+name: sudoku-puzzle-game
+arch: amd64
+version: "@VERSION@"
+maintainer: Ashutosh Sajan
+description: A beautiful, modern Sudoku puzzle game
+homepage: https://solve-sudoku.netlify.app
+license: GPL-3.0-only
+depends:
+  - libgtk-3-0
+contents:
+  - src: ../build/linux/x64/release/bundle/
+    dst: /usr/lib/sudoku-puzzle-game/
+  - src: ./sudoku.desktop
+    dst: /usr/share/applications/sudoku.desktop
+  - src: ../web/icons/Icon-512.png
+    dst: /usr/share/icons/hicolor/512x512/apps/sudoku.png
+  - src: /usr/lib/sudoku-puzzle-game/sudoku
+    dst: /usr/bin/sudoku
+    type: symlink
