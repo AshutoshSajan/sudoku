@@ -15,7 +15,14 @@ git checkout -b feature/awesome-thing dev
 gh pr create --base dev --title "feat: awesome thing"
 # after merge:
 gh pr create --base main --head dev --title "Release vX.Y.Z"
-git tag vX.Y.Z origin/main && git push origin vX.Y.Z
+git fetch origin
+# Tag the newest merge commit WITHOUT "[skip ci]" in its message, never
+# bare HEAD: the changelog bot's "[skip ci]" commit suppresses tag-push
+# runs, so tagging HEAD silently builds nothing.
+git tag vX.Y.Z <merge-sha> && git push origin vX.Y.Z
+# Re-rolling a failed release: delete the GitHub Release in the browser
+# first if one was published, then move the tag:
+git tag -f vX.Y.Z <new-merge-sha> && git push -f origin vX.Y.Z
 ```
 
 ## Binary releases (the `v*` tag flow)
