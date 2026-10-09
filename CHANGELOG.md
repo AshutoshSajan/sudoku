@@ -12,6 +12,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 ### Documentation
 
 - Update changelog [skip ci] ([dd34a47](https://github.com/AshutoshSajan/sudoku/commit/dd34a47bb086b13473bb5e3f3bfbe299db13975a))
+- Update changelog [skip ci] ([c9138cd](https://github.com/AshutoshSajan/sudoku/commit/c9138cd5067dff64fdb7eb01020b57e92cf2be98))
 
 ## [1.3.0] - 2026-10-09
 
