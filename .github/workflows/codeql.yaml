@@ -5,9 +5,9 @@ name: CodeQL
 # migration lands on our schedule, not GitHub's.
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
   schedule:
     - cron: '0 6 * * 1'
 
