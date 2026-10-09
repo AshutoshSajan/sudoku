@@ -16,6 +16,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - *(fdroid)* Valid category and auto-update mode ([5542ed3](https://github.com/AshutoshSajan/sudoku/commit/5542ed3358e03535628139c955069f9c4be5592b))
 - *(fdroid)* Canonical recipe matching submitted MR ([1bd5598](https://github.com/AshutoshSajan/sudoku/commit/1bd559833af06ccb1c3d6bd5b453bcabbe0cb156))
 - *(snap)* Qualify desktop Exec as snap.app per snap format ([c239a23](https://github.com/AshutoshSajan/sudoku/commit/c239a23d898d19a7fffdacb48c9f61e9716a5eb2))
+- *(release)* AGP 9 signing DSL, nfpm paths, AppImage icon name ([c01ca5b](https://github.com/AshutoshSajan/sudoku/commit/c01ca5b09c776d25e66bdfeddc357cb0c88a14b2))
 
 ### Documentation
 
@@ -26,6 +27,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Update changelog [skip ci] ([7d0d5ee](https://github.com/AshutoshSajan/sudoku/commit/7d0d5ee11a4b12ccd2ea635848fda5aae32b7b81))
 - Update changelog [skip ci] ([a8e0d1f](https://github.com/AshutoshSajan/sudoku/commit/a8e0d1f9fe1786299f7779963037dd2fdff3818d))
 - Update changelog [skip ci] ([202763b](https://github.com/AshutoshSajan/sudoku/commit/202763bba920240e4c01327f60bd078b64596099))
+- Update changelog [skip ci] ([98563eb](https://github.com/AshutoshSajan/sudoku/commit/98563eb5d5c79265c344555a5bc8ed375f001499))
 
 ### Miscellaneous
 
