@@ -3,9 +3,14 @@ name: Release
 # One-tag binary releases: push `vX.Y.Z` on main (or dispatch manually
 # for a dry run) and every distributable is built and attached to the
 # GitHub Release. Extension tags (`ext-v*`) are NOT matched here.
+# A weekly scheduled dry-run (full matrix, never publishes: the publish
+# step is tag-gated) catches toolchain bitrot between releases. Daily
+# would cost ~7x the minutes for no extra signal; bump the cron if needed.
 on:
   push:
     tags: ['v*']
+  schedule:
+    - cron: '0 6 * * 1'
   workflow_dispatch:
     inputs:
       version:
