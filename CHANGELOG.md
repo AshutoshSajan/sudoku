@@ -7,12 +7,11 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ### Bug Fixes
 
-- *(release)* Stage Flutter lib/ and data/ inside AppImage ([8056031](https://github.com/AshutoshSajan/sudoku/commit/8056031ac757be285d757e20f7a46df10bf0ae49))
+- *(snap)* Build amd64+arm64 only; Flutter has no engines for other arches ([3fa876b](https://github.com/AshutoshSajan/sudoku/commit/3fa876b32e058a3d4a127f919475425ea2b4aa1d))
 
 ### Documentation
 
-- Update changelog [skip ci] ([dd34a47](https://github.com/AshutoshSajan/sudoku/commit/dd34a47bb086b13473bb5e3f3bfbe299db13975a))
-- Update changelog [skip ci] ([c9138cd](https://github.com/AshutoshSajan/sudoku/commit/c9138cd5067dff64fdb7eb01020b57e92cf2be98))
+- Update changelog [skip ci] ([2defd14](https://github.com/AshutoshSajan/sudoku/commit/2defd14da1245162fa8a392bc7246e7d8f80132b))
 
 ## [1.3.0] - 2026-10-09
 
@@ -28,6 +27,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - *(fdroid)* Canonical recipe matching submitted MR ([1bd5598](https://github.com/AshutoshSajan/sudoku/commit/1bd559833af06ccb1c3d6bd5b453bcabbe0cb156))
 - *(snap)* Qualify desktop Exec as snap.app per snap format ([c239a23](https://github.com/AshutoshSajan/sudoku/commit/c239a23d898d19a7fffdacb48c9f61e9716a5eb2))
 - *(release)* AGP 9 signing DSL, nfpm paths, AppImage icon name ([c01ca5b](https://github.com/AshutoshSajan/sudoku/commit/c01ca5b09c776d25e66bdfeddc357cb0c88a14b2))
+- *(release)* Stage Flutter lib/ and data/ inside AppImage ([8056031](https://github.com/AshutoshSajan/sudoku/commit/8056031ac757be285d757e20f7a46df10bf0ae49))
 
 ### Documentation
 
@@ -39,6 +39,8 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Update changelog [skip ci] ([a8e0d1f](https://github.com/AshutoshSajan/sudoku/commit/a8e0d1f9fe1786299f7779963037dd2fdff3818d))
 - Update changelog [skip ci] ([202763b](https://github.com/AshutoshSajan/sudoku/commit/202763bba920240e4c01327f60bd078b64596099))
 - Update changelog [skip ci] ([98563eb](https://github.com/AshutoshSajan/sudoku/commit/98563eb5d5c79265c344555a5bc8ed375f001499))
+- Update changelog [skip ci] ([dd34a47](https://github.com/AshutoshSajan/sudoku/commit/dd34a47bb086b13473bb5e3f3bfbe299db13975a))
+- Update changelog [skip ci] ([c9138cd](https://github.com/AshutoshSajan/sudoku/commit/c9138cd5067dff64fdb7eb01020b57e92cf2be98))
 
 ### Miscellaneous
 
