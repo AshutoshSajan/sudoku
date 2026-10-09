@@ -26,10 +26,12 @@ body = """
         {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/AshutoshSajan/sudoku/commit/{{ commit.id }}))\
     {% endfor %}
 {% endfor %}\
-{% if remote.contributors %}
+{% if github is defined and github.contributors %}
     ### Contributors
-    {% for contributor in remote.contributors %}
-    - @{{ contributor.username }}
+    {% for username in github.contributors | map(attribute="username") | unique %}
+    {% if username is not containing("bot") %}
+    - @{{ username }}
+    {% endif %}
     {%- endfor %}
 {% endif %}\n
 """
