@@ -212,12 +212,19 @@ jobs:
           export APPIMAGE_EXTRACT_AND_RUN=1
           # Icon filename must match the desktop file's Icon= entry.
           cp web/icons/Icon-512.png packaging/sudoku.png
+          # Stage 1: deploy the executable and its linked libraries.
           ./tools/linuxdeploy --appdir AppDir \
             -e build/linux/x64/release/bundle/sudoku \
             -d packaging/sudoku.desktop \
-            -i packaging/sudoku.png \
-            --output appimage
-          mv Sudoku-*.AppImage dist/Sudoku-$VERSION-x86_64.AppImage
+            -i packaging/sudoku.png
+          # Stage 2: the Flutter engine loads lib/libapp.so and data/
+          # relative to the executable; linuxdeploy does not copy them.
+          cp -r build/linux/x64/release/bundle/lib \
+                build/linux/x64/release/bundle/data AppDir/usr/bin/
+          test -f AppDir/usr/bin/lib/libapp.so
+          test -d AppDir/usr/bin/data/flutter_assets
+          # Stage 3: package the staged AppDir.
+          ARCH=x86_64 ./tools/appimagetool AppDir dist/Sudoku-$VERSION-x86_64.AppImage
           ./dist/Sudoku-$VERSION-x86_64.AppImage --appimage-extract >/dev/null
           test -x squashfs-root/AppRun
           ls dist/
