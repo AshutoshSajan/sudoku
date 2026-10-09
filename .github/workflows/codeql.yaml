@@ -1,0 +1,44 @@
+name: CodeQL
+
+# Advanced setup (replaces GitHub-managed default setup, which runs on
+# the floating ubuntu-latest). Runner is pinned so the Ubuntu 26
+# migration lands on our schedule, not GitHub's.
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  schedule:
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+      packages: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Flutter runner sources (linux/, windows/); scanned without a
+          # full native build to keep analysis fast and toolchain-free.
+          - language: c-cpp
+            build-mode: none
+          - language: actions
+            build-mode: none
+    steps:
+      - uses: actions/checkout@v7
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: '/language:${{ matrix.language }}'
