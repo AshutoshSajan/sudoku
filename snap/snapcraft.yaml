@@ -8,7 +8,7 @@
 #   snapcraft upload sudoku-puzzle-game_1.2.0_amd64.snap --release=edge
 # Keep `version` in sync with pubspec.yaml.
 name: sudoku-puzzle-game
-version: '1.2.0'
+version: '1.3.0'
 summary: A beautiful, modern Sudoku puzzle game
 description: |
   Sudoku is a beautiful, modern puzzle game: 4 difficulty levels,
