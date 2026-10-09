@@ -18,6 +18,33 @@ gh pr create --base main --head dev --title "Release vX.Y.Z"
 git tag vX.Y.Z origin/main && git push origin vX.Y.Z
 ```
 
+## Binary releases (the `v*` tag flow)
+
+Pushing `vX.Y.Z` on `main` runs `.github/workflows/release.yaml`, which
+builds every distributable and attaches it to the GitHub Release with
+`SHA256SUMS.txt`:
+
+| Artifact | Runner | Compatibility floor |
+|---|---|---|
+| `.deb` / `.rpm` / `.tar.gz` (Linux x64) | `ubuntu-22.04` | glibc ≥ 2.35: Ubuntu 22.04+, Debian 12+, Fedora 36+, RHEL 9+ |
+| `Sudoku-X.Y.Z-x86_64.AppImage` | `ubuntu-22.04` | same glibc floor, runs anywhere incl. latest distros |
+| `.apk` (armv7/arm64/x86_64/universal) + `.aab` | `ubuntu-24.04` | Android 6.0+ (Flutter `minSdkVersion`); debug-signed — see caveat |
+| `-setup.exe` + `-portable.zip` (Win x64) | `windows-latest` | Windows 10+ x64; no EV cert yet, SmartScreen warns |
+| `-web.zip`, `.snap` | `ubuntu-24.04` | snap is `core22`, runs on any snapd distro |
+
+Rules:
+
+- Version source of truth is the **tag**; builds inject it via
+  `--build-name/--build-number` (`build-number` = CI run number).
+- `snap/snapcraft.yaml` version must equal the tag — the workflow fails
+  otherwise. Bump it before tagging.
+- `ext-v*` tags never trigger app releases (and vice versa).
+- Dry-run without publishing: Actions → Release → Run workflow on any
+  branch. Only real `v*` tags create the public GitHub Release.
+- Caveats for v1: APKs are debug-signed (sideload fine, Play upgrade
+  needs a future keystore + resign); the `.exe` is unsigned. Both are
+  documented follow-ups, not blockers.
+
 ## Commits
 
 Commits **must** follow [Conventional Commits](https://www.conventionalcommits.org/)
