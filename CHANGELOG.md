@@ -8,6 +8,8 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 ### Features
 
 - *(snap)* Add Snap Store packaging for Linux ([04fbadd](https://github.com/AshutoshSajan/sudoku/commit/04fbadd184ba0501dab885c39ec9dd40aab9bad8))
+- *(release)* One-tag multi-format binary releases ([61d6168](https://github.com/AshutoshSajan/sudoku/commit/61d6168e815f2d4fb0bea22e9b264b99ba843454))
+- *(release)* One-tag multi-format binary releases ([d7e007b](https://github.com/AshutoshSajan/sudoku/commit/d7e007bce0771a9668fe21162b364ed209fa5679))
 
 ### Bug Fixes
 
@@ -17,10 +19,12 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ### Documentation
 
+- Binary release flow and OS compatibility matrix ([ca678a1](https://github.com/AshutoshSajan/sudoku/commit/ca678a1ba42530932664fd2635cd31ddec4fe6d8))
 - Update changelog [skip ci] ([2136e18](https://github.com/AshutoshSajan/sudoku/commit/2136e18c8c96eda2f3a89bb3bab91f08cb21ce11))
 - Update changelog [skip ci] ([97e1738](https://github.com/AshutoshSajan/sudoku/commit/97e1738b40e6bf7e763d31e035a8d0c8208bf358))
 - Update changelog [skip ci] ([a1e8baa](https://github.com/AshutoshSajan/sudoku/commit/a1e8baae5e3ce68cdf31f33a102e8ec84da05707))
 - Update changelog [skip ci] ([7d0d5ee](https://github.com/AshutoshSajan/sudoku/commit/7d0d5ee11a4b12ccd2ea635848fda5aae32b7b81))
+- Update changelog [skip ci] ([a8e0d1f](https://github.com/AshutoshSajan/sudoku/commit/a8e0d1f9fe1786299f7779963037dd2fdff3818d))
 
 ### Miscellaneous
 
@@ -32,6 +36,9 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - On-demand snap build with artifact upload ([de27ff0](https://github.com/AshutoshSajan/sudoku/commit/de27ff0d64e24bf9366f93386d2b85502e0fc9b1))
 - Pin ubuntu-24.04 runners ([b930eb7](https://github.com/AshutoshSajan/sudoku/commit/b930eb7f9e5076dcf687524fd6a4a8e864dc88f7))
 - Pin runner in commented chrome job too ([bc659fb](https://github.com/AshutoshSajan/sudoku/commit/bc659fbe47af786e80420225bac4e4a1a727fc71))
+- *(codeql)* Advanced setup on pinned ubuntu-24.04 with v4 actions ([7fa27ec](https://github.com/AshutoshSajan/sudoku/commit/7fa27ecef1a5a18335208a64ba20ed8296f31d54))
+- *(android)* Sign release with upload keystore from secrets ([f41ab88](https://github.com/AshutoshSajan/sudoku/commit/f41ab886883b287ff60df289ba37ed6b87e5fe1b))
+- *(codeql)* Single pinned workflow, drop GitHub-generated duplicate ([2023fa5](https://github.com/AshutoshSajan/sudoku/commit/2023fa5381700b9562261016be5d9b9729df16cf))
 
 ## [1.2.0] - 2026-10-06
 
