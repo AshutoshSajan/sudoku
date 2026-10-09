@@ -28,7 +28,7 @@ builds every distributable and attaches it to the GitHub Release with
 |---|---|---|
 | `.deb` / `.rpm` / `.tar.gz` (Linux x64) | `ubuntu-22.04` | glibc ≥ 2.35: Ubuntu 22.04+, Debian 12+, Fedora 36+, RHEL 9+ |
 | `Sudoku-X.Y.Z-x86_64.AppImage` | `ubuntu-22.04` | same glibc floor, runs anywhere incl. latest distros |
-| `.apk` (armv7/arm64/x86_64/universal) + `.aab` | `ubuntu-24.04` | Android 6.0+ (Flutter `minSdkVersion`); debug-signed — see caveat |
+| `.apk` (armv7/arm64/x86_64/universal) + `.aab` | `ubuntu-24.04` | Android 6.0+ (Flutter `minSdkVersion`); signed with the upload keystore |
 | `-setup.exe` + `-portable.zip` (Win x64) | `windows-latest` | Windows 10+ x64; no EV cert yet, SmartScreen warns |
 | `-web.zip`, `.snap` | `ubuntu-24.04` | snap is `core22`, runs on any snapd distro |
 
@@ -41,9 +41,10 @@ Rules:
 - `ext-v*` tags never trigger app releases (and vice versa).
 - Dry-run without publishing: Actions → Release → Run workflow on any
   branch. Only real `v*` tags create the public GitHub Release.
-- Caveats for v1: APKs are debug-signed (sideload fine, Play upgrade
-  needs a future keystore + resign); the `.exe` is unsigned. Both are
-  documented follow-ups, not blockers.
+- Caveats for v1: the `.exe` is unsigned (SmartScreen warns; use the
+  portable `.zip` to skip it). Signing is a documented follow-up.
+- The upload keystore lives outside the repo (`ANDROID_*` secrets);
+  losing it bricks the app's update identity — back it up.
 
 ## Commits
 

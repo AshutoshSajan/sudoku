@@ -91,8 +91,20 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      # NOTE: debug-signed until an upload keystore is configured
-      # (see README). Sideload works; Play upgrade path needs resign.
+      - name: Restore upload keystore
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/upload-keystore.jks
+          cat > android/key.properties <<EOF
+          storeFile=upload-keystore.jks
+          storePassword=$ANDROID_STORE_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          keyPassword=$ANDROID_KEY_PASSWORD
+          EOF
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
       - run: >
           flutter build apk --release --split-per-abi
           --build-name=$VERSION --build-number=$BUILD_NUMBER
