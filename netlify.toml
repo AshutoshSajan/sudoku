@@ -1,7 +1,9 @@
-# Netlify deploys the prebuilt Flutter web output.
-# Build it locally with `flutter build web --release`, then run
-# `netlify deploy --prod` from this directory.
+# Netlify builds the Flutter web app on every push to main.
+# tool/netlify-build.sh downloads the stable Flutter SDK (the build image
+# doesn't ship one) and runs `flutter build web --release`. Manual
+# `netlify deploy --prod` of a local build still works too.
 [build]
+  command = "bash tool/netlify-build.sh"
   publish = "build/web"
 
 # Flutter web is a single-page app with no deep routes, so no
