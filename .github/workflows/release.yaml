@@ -12,6 +12,10 @@ on:
         description: 'Version X.Y.Z override (defaults to tag, else pubspec)'
         required: false
         default: ''
+      platforms:
+        description: 'Comma-separated subset to build: android,linux,appimage,windows,web,snap (default: all)'
+        required: false
+        default: 'all'
 
 permissions:
   contents: read
@@ -76,6 +80,12 @@ jobs:
 
   build-android:
     needs: resolve-version
+    # Tag pushes always build everything; manual dispatches may select a
+    # subset so a single-artifact fix costs one job, not nine.
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.platforms == 'all' ||
+      contains(inputs.platforms, 'android')
     runs-on: ubuntu-24.04
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
@@ -134,6 +144,10 @@ jobs:
 
   build-linux:
     needs: resolve-version
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.platforms == 'all' ||
+      contains(inputs.platforms, 'linux')
     # Oldest supported runner: glibc 2.35 baseline runs on Ubuntu 22.04
     # through the latest releases (forward-compatible), plus Debian 12+,
     # Fedora 36+ and RHEL 9+. A 24.04 build would not install on 22.04.
@@ -180,6 +194,10 @@ jobs:
 
   build-appimage:
     needs: resolve-version
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.platforms == 'all' ||
+      contains(inputs.platforms, 'appimage')
     # glibc floor: 24.04-built AppImages won't run on older distros.
     runs-on: ubuntu-22.04
     env:
@@ -235,6 +253,10 @@ jobs:
 
   build-windows:
     needs: resolve-version
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.platforms == 'all' ||
+      contains(inputs.platforms, 'windows')
     runs-on: windows-latest
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
@@ -272,6 +294,10 @@ jobs:
 
   build-web:
     needs: resolve-version
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.platforms == 'all' ||
+      contains(inputs.platforms, 'web')
     runs-on: ubuntu-24.04
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
@@ -294,6 +320,10 @@ jobs:
 
   build-snap:
     needs: resolve-version
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.platforms == 'all' ||
+      contains(inputs.platforms, 'snap')
     runs-on: ubuntu-24.04
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
@@ -327,17 +357,51 @@ jobs:
       - build-windows
       - build-web
       - build-snap
+    # One red artifact must not void the rest: run on partial success and
+    # publish whatever built. Still skipped when setup itself failed or the
+    # run was cancelled.
+    if: >-
+      always() &&
+      !cancelled() &&
+      needs.resolve-version.result == 'success'
     permissions:
       contents: write
     runs-on: ubuntu-24.04
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
     steps:
+      # One download per artifact with continue-on-error: a failed or
+      # skipped build leaves no artifact, and that must not fail this job.
       - uses: actions/download-artifact@v8
+        continue-on-error: true
         with:
-          pattern: '*-dist'
+          name: android-dist
           path: dist
-          merge-multiple: true
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: linux-dist
+          path: dist
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: appimage-dist
+          path: dist
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: windows-dist
+          path: dist
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: web-dist
+          path: dist
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: snap-dist
+          path: dist
       - run: |
           ls -R dist
           (cd dist && sha256sum -- * > SHA256SUMS.txt)
