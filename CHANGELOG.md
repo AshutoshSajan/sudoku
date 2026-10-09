@@ -7,12 +7,18 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ### 🚀 Features
 
+- *(release)* Weekly scheduled dry-run to catch toolchain bitrot ([2b2c8fb](https://github.com/AshutoshSajan/sudoku/commit/2b2c8fbd48cc44310888c434dce70afa42008981))
 - *(release)* Per-artifact dry-runs and partial-success publishing ([140fb43](https://github.com/AshutoshSajan/sudoku/commit/140fb4322e89dcb243d5802b881d0b6e676bfabb))
 
 ### 🐛 Bug Fixes
 
+- *(license)* Bundle GPL text into all distributables ([8486e1d](https://github.com/AshutoshSajan/sudoku/commit/8486e1d88060b3456a0c00f9d7b550fd398b8b27))
 - *(changelog)* Use github.contributors context and hide bot accounts ([c71915b](https://github.com/AshutoshSajan/sudoku/commit/c71915b40cac18c8cc989b6019e6754cc4cf8c71))
 - *(ci)* Pass github token to git-cliff as argv for contributors ([6e9f697](https://github.com/AshutoshSajan/sudoku/commit/6e9f697a89a9c7e7155a782a2c9d60fb289b352a))
+
+### 📚 Documentation
+
+- Tag the merge commit, not HEAD, plus release re-roll procedure ([d900430](https://github.com/AshutoshSajan/sudoku/commit/d900430ffc45af1bcb3af49b0a76acdd79faa37f))
 
 ### Contributors
 
