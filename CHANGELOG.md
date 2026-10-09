@@ -3,129 +3,52 @@
 All notable changes to Sudoku are documented here, generated automatically
 from Conventional Commits by [git-cliff](https://git-cliff.org).
 
-## [unreleased]
+## [1.3.0] - 2026-10-09
+[Full changelog](https://github.com/AshutoshSajan/sudoku/compare/v1.2.0...v1.3.0)
 
-### Bug Fixes
+### 🚀 Features
+
+- *(release)* One-tag multi-format binary releases ([d7e007b](https://github.com/AshutoshSajan/sudoku/commit/d7e007bce0771a9668fe21162b364ed209fa5679))
+- *(release)* One-tag multi-format binary releases ([61d6168](https://github.com/AshutoshSajan/sudoku/commit/61d6168e815f2d4fb0bea22e9b264b99ba843454))
+- *(snap)* Add Snap Store packaging for Linux ([04fbadd](https://github.com/AshutoshSajan/sudoku/commit/04fbadd184ba0501dab885c39ec9dd40aab9bad8))
+
+### 🐛 Bug Fixes
 
 - *(snap)* Core22 arch list syntax; dict form is core24+ only ([16ba957](https://github.com/AshutoshSajan/sudoku/commit/16ba957650ba6b82fd99c8c91072c3baf4e8ed0b))
-
-### Documentation
-
-- Update changelog [skip ci] ([a09d382](https://github.com/AshutoshSajan/sudoku/commit/a09d382bbf121ac18e91c9d51e93dd105448d9b4))
-
-## [1.3.0] - 2026-10-09
-
-### Features
-
-- *(snap)* Add Snap Store packaging for Linux ([04fbadd](https://github.com/AshutoshSajan/sudoku/commit/04fbadd184ba0501dab885c39ec9dd40aab9bad8))
-- *(release)* One-tag multi-format binary releases ([61d6168](https://github.com/AshutoshSajan/sudoku/commit/61d6168e815f2d4fb0bea22e9b264b99ba843454))
-- *(release)* One-tag multi-format binary releases ([d7e007b](https://github.com/AshutoshSajan/sudoku/commit/d7e007bce0771a9668fe21162b364ed209fa5679))
-
-### Bug Fixes
-
-- *(fdroid)* Valid category and auto-update mode ([5542ed3](https://github.com/AshutoshSajan/sudoku/commit/5542ed3358e03535628139c955069f9c4be5592b))
-- *(fdroid)* Canonical recipe matching submitted MR ([1bd5598](https://github.com/AshutoshSajan/sudoku/commit/1bd559833af06ccb1c3d6bd5b453bcabbe0cb156))
-- *(snap)* Qualify desktop Exec as snap.app per snap format ([c239a23](https://github.com/AshutoshSajan/sudoku/commit/c239a23d898d19a7fffdacb48c9f61e9716a5eb2))
-- *(release)* AGP 9 signing DSL, nfpm paths, AppImage icon name ([c01ca5b](https://github.com/AshutoshSajan/sudoku/commit/c01ca5b09c776d25e66bdfeddc357cb0c88a14b2))
-- *(release)* Stage Flutter lib/ and data/ inside AppImage ([8056031](https://github.com/AshutoshSajan/sudoku/commit/8056031ac757be285d757e20f7a46df10bf0ae49))
 - *(snap)* Build amd64+arm64 only; Flutter has no engines for other arches ([3fa876b](https://github.com/AshutoshSajan/sudoku/commit/3fa876b32e058a3d4a127f919475425ea2b4aa1d))
+- *(release)* Stage Flutter lib/ and data/ inside AppImage ([8056031](https://github.com/AshutoshSajan/sudoku/commit/8056031ac757be285d757e20f7a46df10bf0ae49))
+- *(release)* AGP 9 signing DSL, nfpm paths, AppImage icon name ([c01ca5b](https://github.com/AshutoshSajan/sudoku/commit/c01ca5b09c776d25e66bdfeddc357cb0c88a14b2))
+- *(snap)* Qualify desktop Exec as snap.app per snap format ([c239a23](https://github.com/AshutoshSajan/sudoku/commit/c239a23d898d19a7fffdacb48c9f61e9716a5eb2))
+- *(fdroid)* Canonical recipe matching submitted MR ([1bd5598](https://github.com/AshutoshSajan/sudoku/commit/1bd559833af06ccb1c3d6bd5b453bcabbe0cb156))
+- *(fdroid)* Valid category and auto-update mode ([5542ed3](https://github.com/AshutoshSajan/sudoku/commit/5542ed3358e03535628139c955069f9c4be5592b))
 
-### Documentation
+### 📚 Documentation
 
 - Binary release flow and OS compatibility matrix ([ca678a1](https://github.com/AshutoshSajan/sudoku/commit/ca678a1ba42530932664fd2635cd31ddec4fe6d8))
-- Update changelog [skip ci] ([2136e18](https://github.com/AshutoshSajan/sudoku/commit/2136e18c8c96eda2f3a89bb3bab91f08cb21ce11))
-- Update changelog [skip ci] ([97e1738](https://github.com/AshutoshSajan/sudoku/commit/97e1738b40e6bf7e763d31e035a8d0c8208bf358))
-- Update changelog [skip ci] ([a1e8baa](https://github.com/AshutoshSajan/sudoku/commit/a1e8baae5e3ce68cdf31f33a102e8ec84da05707))
-- Update changelog [skip ci] ([7d0d5ee](https://github.com/AshutoshSajan/sudoku/commit/7d0d5ee11a4b12ccd2ea635848fda5aae32b7b81))
-- Update changelog [skip ci] ([a8e0d1f](https://github.com/AshutoshSajan/sudoku/commit/a8e0d1f9fe1786299f7779963037dd2fdff3818d))
-- Update changelog [skip ci] ([202763b](https://github.com/AshutoshSajan/sudoku/commit/202763bba920240e4c01327f60bd078b64596099))
-- Update changelog [skip ci] ([98563eb](https://github.com/AshutoshSajan/sudoku/commit/98563eb5d5c79265c344555a5bc8ed375f001499))
-- Update changelog [skip ci] ([dd34a47](https://github.com/AshutoshSajan/sudoku/commit/dd34a47bb086b13473bb5e3f3bfbe299db13975a))
-- Update changelog [skip ci] ([c9138cd](https://github.com/AshutoshSajan/sudoku/commit/c9138cd5067dff64fdb7eb01020b57e92cf2be98))
-- Update changelog [skip ci] ([2defd14](https://github.com/AshutoshSajan/sudoku/commit/2defd14da1245162fa8a392bc7246e7d8f80132b))
-
-### Miscellaneous
-
-- *(snap)* Rename to sudoku-puzzle-game ([9ee165f](https://github.com/AshutoshSajan/sudoku/commit/9ee165fbc578dbd86dacb4f07c0d21ef89f549c4))
-- *(release)* Bump version to 1.3.0 ([fe5ee23](https://github.com/AshutoshSajan/sudoku/commit/fe5ee23cc9a83267530246d169dd0dac9f0eb86e))
-
-### Other
-
-- Run changelog job on main pushes only ([6a4e1e4](https://github.com/AshutoshSajan/sudoku/commit/6a4e1e4b8b0b2220297a7b82c18c5daf4414189e))
-- On-demand snap build with artifact upload ([de27ff0](https://github.com/AshutoshSajan/sudoku/commit/de27ff0d64e24bf9366f93386d2b85502e0fc9b1))
-- Pin ubuntu-24.04 runners ([b930eb7](https://github.com/AshutoshSajan/sudoku/commit/b930eb7f9e5076dcf687524fd6a4a8e864dc88f7))
-- Pin runner in commented chrome job too ([bc659fb](https://github.com/AshutoshSajan/sudoku/commit/bc659fbe47af786e80420225bac4e4a1a727fc71))
-- *(codeql)* Advanced setup on pinned ubuntu-24.04 with v4 actions ([7fa27ec](https://github.com/AshutoshSajan/sudoku/commit/7fa27ecef1a5a18335208a64ba20ed8296f31d54))
-- *(android)* Sign release with upload keystore from secrets ([f41ab88](https://github.com/AshutoshSajan/sudoku/commit/f41ab886883b287ff60df289ba37ed6b87e5fe1b))
-- *(codeql)* Single pinned workflow, drop GitHub-generated duplicate ([2023fa5](https://github.com/AshutoshSajan/sudoku/commit/2023fa5381700b9562261016be5d9b9729df16cf))
 
 ## [1.2.0] - 2026-10-06
+[Full changelog](https://github.com/AshutoshSajan/sudoku/compare/v1.1.0...v1.2.0)
 
-### Features
+### 🚀 Features
 
-- *(fdroid)* Fastlane metadata and submission recipe draft ([5f746d0](https://github.com/AshutoshSajan/sudoku/commit/5f746d000fb04301d04c2e13bc68c513455f0c30))
-- *(save)* Autosave game with resume from home screen ([f666b11](https://github.com/AshutoshSajan/sudoku/commit/f666b115a790d8255e793487973981c622af505a))
 - *(fdroid)* Add phone screenshots for store listing ([bdfc48d](https://github.com/AshutoshSajan/sudoku/commit/bdfc48d50dcd7f460cceedbc7e0a2bca60fc34fa))
+- *(save)* Autosave game with resume from home screen ([f666b11](https://github.com/AshutoshSajan/sudoku/commit/f666b115a790d8255e793487973981c622af505a))
+- *(fdroid)* Fastlane metadata and submission recipe draft ([5f746d0](https://github.com/AshutoshSajan/sudoku/commit/5f746d000fb04301d04c2e13bc68c513455f0c30))
 
-### Bug Fixes
+### 🐛 Bug Fixes
 
 - *(extension)* Valid AMO license and category slugs ([d3eef74](https://github.com/AshutoshSajan/sudoku/commit/d3eef747234868e3baf3a4791a881b06d8698531))
 
-### Documentation
+### 📚 Documentation
 
-- Update changelog [skip ci] ([3f107ba](https://github.com/AshutoshSajan/sudoku/commit/3f107bab9f01b8a7c48dac39ce3e3c1af5350a51))
 - Sync generated changelog ([c6a2abb](https://github.com/AshutoshSajan/sudoku/commit/c6a2abbab9b3c121796b6256b1bc11bf100a6bf0))
-- Update changelog [skip ci] ([0155b68](https://github.com/AshutoshSajan/sudoku/commit/0155b68e5c3443eb5f51fa37db0f6ec6f6821d9a))
-- Update changelog [skip ci] ([56d96ab](https://github.com/AshutoshSajan/sudoku/commit/56d96ab83d4967729720d0df6e997152a10f3bba))
-- Update changelog [skip ci] ([2dc5e25](https://github.com/AshutoshSajan/sudoku/commit/2dc5e25edb612129bcdf0bbc1e2c684965b92309))
-- Update changelog [skip ci] ([8c8f675](https://github.com/AshutoshSajan/sudoku/commit/8c8f6755bf3b63c1781efda92d157c7b507e3586))
-- Update changelog [skip ci] ([ddb193c](https://github.com/AshutoshSajan/sudoku/commit/ddb193c17fe2e485031d3ae68b266f9f34730538))
-- Update changelog [skip ci] ([b0dba28](https://github.com/AshutoshSajan/sudoku/commit/b0dba28d0d522da33858d4ae1503e2c008e44165))
-- Update changelog [skip ci] ([ae89c97](https://github.com/AshutoshSajan/sudoku/commit/ae89c979778687019a421b3b9352a3bc0c4ca0e8))
-- Update changelog [skip ci] ([8ef925f](https://github.com/AshutoshSajan/sudoku/commit/8ef925f735de41e6a7ab36338920134ea95aae6d))
-- Update changelog [skip ci] ([6e0b501](https://github.com/AshutoshSajan/sudoku/commit/6e0b501ce0480c53edd8cb27959248a686a07db1))
-- Update changelog [skip ci] ([0e6b4bc](https://github.com/AshutoshSajan/sudoku/commit/0e6b4bc0097af75a4027f8155ed3f4f363953d2b))
-- Update changelog [skip ci] ([953c90c](https://github.com/AshutoshSajan/sudoku/commit/953c90c743bdd53c524d49304e158f903c53d2ec))
-- Update changelog [skip ci] ([6230f4c](https://github.com/AshutoshSajan/sudoku/commit/6230f4cff99a0d494d7a53d18b2eabc0b63c8745))
-- Update changelog [skip ci] ([b383652](https://github.com/AshutoshSajan/sudoku/commit/b3836523a25f210c27dcc90b82758046f2d398d7))
-
-### Miscellaneous
-
-- *(extension)* Add AMO listing metadata for Firefox sign ([b860a3f](https://github.com/AshutoshSajan/sudoku/commit/b860a3f815c30c5e8970162f17b055cff445dc20))
-- *(extension)* V1.1.0 metadata, slugs, readme polish ([494129a](https://github.com/AshutoshSajan/sudoku/commit/494129ad558887c15e77702e4dbf947759d533b7))
-- *(extension)* Bump to 1.1.1 for AMO resubmission ([9e74fe0](https://github.com/AshutoshSajan/sudoku/commit/9e74fe07e264774d61bc43defb9bef423a0c537e))
-- *(release)* Bump to 1.2.0 for F-Droid ([6914bfd](https://github.com/AshutoshSajan/sudoku/commit/6914bfdfc482d845b878063b981ac8289a1f1aae))
-
-### Other
-
-- Enable Firefox add-on auto-publishing on main ([ee424e2](https://github.com/AshutoshSajan/sudoku/commit/ee424e2b0637dc139b9eec388ae1942d4dec3213))
-- Auto-bump extension version on every store publish ([a0e4874](https://github.com/AshutoshSajan/sudoku/commit/a0e4874ab0ad1284d0766b65b13f9d3303cfb8ca))
-- Submit Firefox listed versions without waiting for review ([09f225b](https://github.com/AshutoshSajan/sudoku/commit/09f225bf0af9967cbf9784c7b4f19bef3fa9105c))
-- Bump extension past highest AMO version ([227c75e](https://github.com/AshutoshSajan/sudoku/commit/227c75e9fe031c118c8206fb51785a80c6fa424b))
-- Trigger on main branch only ([34a8ebc](https://github.com/AshutoshSajan/sudoku/commit/34a8ebc40701c87e45434c9ff8fca10a1506b2c7))
-- Publish extensions only via manual dispatch ([2e5ccfb](https://github.com/AshutoshSajan/sudoku/commit/2e5ccfb6ffb5eee6eed7459338ddcbcdd1e5e164))
-- Publish extensions from ext-v tags only ([cfa0328](https://github.com/AshutoshSajan/sudoku/commit/cfa03288c58b7a08916e685849af8099c80b81f0))
 
 ## [1.1.0] - 2026-10-01
+[Full changelog](https://github.com/AshutoshSajan/sudoku/compare/v1.0.0...v1.1.0)
 
-### Documentation
+### 📚 Documentation
 
-- Update changelog [skip ci] ([fffc74f](https://github.com/AshutoshSajan/sudoku/commit/fffc74ffd4564851d053cd00abef425af8984bc0))
-- Add generated changelog ([1b3208a](https://github.com/AshutoshSajan/sudoku/commit/1b3208ac07b51b598a4074aeecd1973c07b29e45))
 - Resolve changelog conflict using main copy ([cf1be09](https://github.com/AshutoshSajan/sudoku/commit/cf1be09f311a2701581c22235df4f5be74931824))
-
-### Miscellaneous
-
-- *(release)* GPL-3.0 license, web-ext ignores, bump to 1.1.0 ([6db1e80](https://github.com/AshutoshSajan/sudoku/commit/6db1e80df98f9183d4c644f6a68b5129406a39ac))
-
-### Other
-
-- Latest action majors, changelog job, commented store publishing ([fd9ff69](https://github.com/AshutoshSajan/sudoku/commit/fd9ff697721849a3690fa772a70d189d4f81ad20))
-
-## [1.0.0] - 2026-10-01
-
-### Other
-
-- *(release)* Add git-cliff changelog, hooks, contributing guide ([56d2649](https://github.com/AshutoshSajan/sudoku/commit/56d26495f2a05c6cd278e09afbc5a0e6f20c9c0e))
+- Add generated changelog ([1b3208a](https://github.com/AshutoshSajan/sudoku/commit/1b3208ac07b51b598a4074aeecd1973c07b29e45))
 
 <!-- generated by git-cliff, do not edit manually -->
