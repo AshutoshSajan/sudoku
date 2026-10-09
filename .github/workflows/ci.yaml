@@ -39,6 +39,10 @@ jobs:
         with:
           config: cliff.toml
           args: -o CHANGELOG.md
+        env:
+          # Lets git-cliff's [remote.github] resolve contributors. The default
+          # GITHUB_TOKEN has read API access; no extra secret needed.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Commit changelog
         run: |
           git config user.name "github-actions[bot]"
