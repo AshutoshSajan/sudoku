@@ -1,10 +1,26 @@
+import com.android.build.api.dsl.ApplicationExtension
+import java.io.FileInputStream
+import java.util.Properties
+import org.gradle.kotlin.dsl.configure
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-android {
+// Release signing comes from android/key.properties (git-ignored;
+// CI generates it from ANDROID_* secrets). Absent locally, release
+// builds fall back to debug keys so `flutter run --release` works.
+val keystoreProperties = Properties()
+val keystoreFile = rootProject.file("key.properties")
+if (keystoreFile.exists()) {
+    FileInputStream(keystoreFile).use { stream -> keystoreProperties.load(stream) }
+}
+
+// AGP 9 removed the `android {}` Project accessor (android.newDsl);
+// configure the ApplicationExtension directly.
+configure<ApplicationExtension> {
     namespace = "com.ashutoshsajan.sudoku"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
@@ -27,15 +43,6 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-    }
-
-    // Release signing comes from android/key.properties (git-ignored;
-    // CI generates it from ANDROID_* secrets). Absent locally, release
-    // builds fall back to debug keys so `flutter run --release` works.
-    val keystoreProperties = java.util.Properties()
-    val keystoreFile = rootProject.file("key.properties")
-    if (keystoreFile.exists()) {
-        keystoreFile.inputStream().use { keystoreProperties.load(it) }
     }
 
     signingConfigs {
