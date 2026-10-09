@@ -170,8 +170,9 @@ jobs:
           sed "s/@VERSION@/$VERSION/g" packaging/nfpm.yaml.in > packaging/nfpm.yaml
           nfpm package --config packaging/nfpm.yaml --packager deb --target dist/
           nfpm package --config packaging/nfpm.yaml --packager rpm --target dist/
+          # LICENSE travels inside the tarball (deb/rpm get it via nfpm contents).
           tar -czf dist/sudoku-$VERSION-linux-x64.tar.gz \
-            -C build/linux/x64/release bundle
+            -C build/linux/x64/release bundle -C "$GITHUB_WORKSPACE" LICENSE
           ls dist/
       - uses: actions/upload-artifact@v7
         with:
@@ -221,6 +222,8 @@ jobs:
           # relative to the executable; linuxdeploy does not copy them.
           cp -r build/linux/x64/release/bundle/lib \
                 build/linux/x64/release/bundle/data AppDir/usr/bin/
+          # GPL: license text travels inside the image.
+          cp LICENSE AppDir/
           test -f AppDir/usr/bin/lib/libapp.so
           test -d AppDir/usr/bin/data/flutter_assets
           # Stage 3: package the staged AppDir.
@@ -253,7 +256,7 @@ jobs:
       - name: Portable zip
         run: >
           Compress-Archive
-          -Path build\windows\x64\runner\Release\*
+          -Path build\windows\x64\runner\Release\*,LICENSE
           -DestinationPath dist\sudoku-$env:VERSION-windows-x64-portable.zip
       # No EV cert for v1: SmartScreen will warn. Portable zip is the
       # no-friction alternative; signing is a documented follow-up.
@@ -285,7 +288,8 @@ jobs:
       - run: flutter build web --release
       - run: |
           mkdir -p dist
-          cd build && zip -qr ../dist/sudoku-$VERSION-web.zip web
+          cp LICENSE build/
+          cd build && zip -qr ../dist/sudoku-$VERSION-web.zip web LICENSE
           ls ../dist/
       - uses: actions/upload-artifact@v7
         with:
@@ -340,6 +344,9 @@ jobs:
           merge-multiple: true
       - run: |
           ls -R dist
+          # Single top-level copy for the release page (per-artifact copies
+          # already travel inside the tarballs, zip, and AppImage).
+          cp LICENSE dist/
           (cd dist && sha256sum -- * > SHA256SUMS.txt)
           cat dist/SHA256SUMS.txt
       - uses: actions/upload-artifact@v7
