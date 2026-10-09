@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Sudoku
+GenericName=Sudoku puzzle game
+Comment=A beautiful, modern Sudoku puzzle game
+Exec=sudoku
+Icon=sudoku
+Terminal=false
+Type=Application
+Categories=Game;LogicGame;
+Keywords=sudoku;puzzle;game;
