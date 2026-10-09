@@ -82,7 +82,7 @@ jobs:
       BUILD_NUMBER: ${{ needs.resolve-version.outputs.build-number }}
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
@@ -122,7 +122,10 @@ jobs:
 
   build-linux:
     needs: resolve-version
-    runs-on: ubuntu-24.04
+    # Oldest supported runner: glibc 2.35 baseline runs on Ubuntu 22.04
+    # through the latest releases (forward-compatible), plus Debian 12+,
+    # Fedora 36+ and RHEL 9+. A 24.04 build would not install on 22.04.
+    runs-on: ubuntu-22.04
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
       BUILD_NUMBER: ${{ needs.resolve-version.outputs.build-number }}
@@ -309,7 +312,7 @@ jobs:
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
     steps:
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: '*-dist'
           path: dist
@@ -324,7 +327,7 @@ jobs:
           path: dist/SHA256SUMS.txt
       # Manual dispatches validate the full pipeline without cutting
       # a public release; only real v* tags publish.
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: Sudoku ${{ env.VERSION }}

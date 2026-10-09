@@ -6,8 +6,9 @@ maintainer: Ashutosh Sajan
 description: A beautiful, modern Sudoku puzzle game
 homepage: https://solve-sudoku.netlify.app
 license: GPL-3.0-only
+# Alternation covers the 24.04 rename (libgtk-3-0t64) and older suites.
 depends:
-  - libgtk-3-0
+  - libgtk-3-0t64 | libgtk-3-0
 contents:
   - src: ../build/linux/x64/release/bundle/
     dst: /usr/lib/sudoku-puzzle-game/
