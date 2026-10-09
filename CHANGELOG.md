@@ -3,6 +3,12 @@
 All notable changes to Sudoku are documented here, generated automatically
 from Conventional Commits by [git-cliff](https://git-cliff.org).
 
+## [unreleased]
+
+### 🐛 Bug Fixes
+
+- *(ci)* Pass github token to git-cliff as argv for contributors ([6e9f697](https://github.com/AshutoshSajan/sudoku/commit/6e9f697a89a9c7e7155a782a2c9d60fb289b352a))
+
 ## [1.3.0] - 2026-10-09
 [Full changelog](https://github.com/AshutoshSajan/sudoku/compare/v1.2.0...v1.3.0)
 
