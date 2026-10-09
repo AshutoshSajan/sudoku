@@ -25,10 +25,12 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 - Update changelog [skip ci] ([a1e8baa](https://github.com/AshutoshSajan/sudoku/commit/a1e8baae5e3ce68cdf31f33a102e8ec84da05707))
 - Update changelog [skip ci] ([7d0d5ee](https://github.com/AshutoshSajan/sudoku/commit/7d0d5ee11a4b12ccd2ea635848fda5aae32b7b81))
 - Update changelog [skip ci] ([a8e0d1f](https://github.com/AshutoshSajan/sudoku/commit/a8e0d1f9fe1786299f7779963037dd2fdff3818d))
+- Update changelog [skip ci] ([202763b](https://github.com/AshutoshSajan/sudoku/commit/202763bba920240e4c01327f60bd078b64596099))
 
 ### Miscellaneous
 
 - *(snap)* Rename to sudoku-puzzle-game ([9ee165f](https://github.com/AshutoshSajan/sudoku/commit/9ee165fbc578dbd86dacb4f07c0d21ef89f549c4))
+- *(release)* Bump version to 1.3.0 ([fe5ee23](https://github.com/AshutoshSajan/sudoku/commit/fe5ee23cc9a83267530246d169dd0dac9f0eb86e))
 
 ### Other
 
