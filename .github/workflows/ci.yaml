@@ -38,10 +38,11 @@ jobs:
       - uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: -o CHANGELOG.md
+          # --github-token as argv: step env does not reliably reach the
+          # action's container, and without a token git-cliff silently skips
+          # the contributors lookup (no WARN). Secrets are masked in logs.
+          args: --github-token ${{ secrets.GITHUB_TOKEN }} -o CHANGELOG.md
         env:
-          # Lets git-cliff's [remote.github] resolve contributors. The default
-          # GITHUB_TOKEN has read API access; no extra secret needed.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Commit changelog
         run: |
