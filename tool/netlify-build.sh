@@ -20,8 +20,20 @@ if [ ! -x "$FLUTTER_HOME/bin/flutter" ] || [ ! -f "$RELEASE_INFO" ]; then
     });
   ')
   ARCHIVE=$(node -p 'JSON.parse(process.argv[1]).archive' "$RELEASE")
+  ARCHIVE_SHA256=$(node -p 'JSON.parse(process.argv[1]).sha256' "$RELEASE")
   echo "Downloading Flutter: $ARCHIVE"
-  curl -fsSL "$RELEASES/$ARCHIVE" | tar -xJ -C "$HOME"
+  ARCHIVE_FILE=$(mktemp)
+  curl -fsSL "$RELEASES/$ARCHIVE" -o "$ARCHIVE_FILE"
+  DOWNLOADED_SHA256=$(sha256sum "$ARCHIVE_FILE" | awk '{print $1}')
+  if [ "$DOWNLOADED_SHA256" != "$ARCHIVE_SHA256" ]; then
+    echo "Checksum verification failed for $ARCHIVE" >&2
+    echo "Expected: $ARCHIVE_SHA256" >&2
+    echo "Actual:   $DOWNLOADED_SHA256" >&2
+    rm -f "$ARCHIVE_FILE"
+    exit 1
+  fi
+  tar -xJ -f "$ARCHIVE_FILE" -C "$HOME"
+  rm -f "$ARCHIVE_FILE"
   printf '%s' "$RELEASE" > "$RELEASE_INFO"
 fi
 
