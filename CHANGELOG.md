@@ -20,6 +20,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ### 📚 Documentation
 
+- *(readme)* Banner, badges, screenshots, store install matrix ([e513c51](https://github.com/AshutoshSajan/sudoku/commit/e513c512d5fb2008ccc728ff305953c5a7ab9372))
 - Tag the merge commit, not HEAD, plus release re-roll procedure ([d900430](https://github.com/AshutoshSajan/sudoku/commit/d900430ffc45af1bcb3af49b0a76acdd79faa37f))
 
 ### Contributors
