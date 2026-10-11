@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 300" width="1280" height="300" font-family="Inter, 'Segoe UI', system-ui, -apple-system, Helvetica, Arial, sans-serif">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3d4190"/><stop offset=".55" stop-color="#6a4fc0"/><stop offset="1" stop-color="#a04fc0"/></linearGradient>
+  <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".28"/><stop offset="1" stop-color="#ffffff" stop-opacity=".10"/></linearGradient>
+</defs>
+<rect width="1280" height="300" rx="24" fill="url(#bg)"/>
+<circle cx="1140" cy="30" r="170" fill="#fff" opacity=".07"/><circle cx="1230" cy="270" r="120" fill="#fff" opacity=".06"/><circle cx="60" cy="310" r="140" fill="#fff" opacity=".05"/>
+<g transform="translate(72 78)">
+  <rect width="144" height="144" rx="30" fill="url(#tile)" stroke="#fff" stroke-opacity=".45" stroke-width="3"/>
+  <g stroke="#fff" stroke-opacity=".85" stroke-width="2">
+    <line x1="48" y1="14" x2="48" y2="130"/><line x1="96" y1="14" x2="96" y2="130"/>
+    <line x1="14" y1="48" x2="130" y2="48"/><line x1="14" y1="96" x2="130" y2="96"/>
+  </g>
+  <g stroke="#fff" stroke-width="4">
+    <line x1="72" y1="14" x2="72" y2="130"/><line x1="14" y1="72" x2="130" y2="72"/>
+  </g>
+  <text x="72" y="104" font-size="56" font-weight="800" fill="#fff" text-anchor="middle">9</text>
+</g>
+<text x="252" y="140" font-size="58" font-weight="800" fill="#fff" letter-spacing="-1">Sudoku</text>
+<text x="254" y="186" font-size="24" fill="#fff" opacity=".92">A clean, offline-first Sudoku puzzle game,</text>
+<text x="254" y="220" font-size="24" fill="#fff" opacity=".92">one codebase on every screen.</text>
+<g font-size="15" font-weight="700" fill="#fff">
+  <rect x="254" y="244" width="104" height="30" rx="15" fill="#fff" opacity=".18"/><text x="306" y="264" text-anchor="middle">Flutter</text>
+  <rect x="370" y="244" width="112" height="30" rx="15" fill="#fff" opacity=".18"/><text x="426" y="264" text-anchor="middle">GPL-3.0</text>
+  <rect x="494" y="244" width="150" height="30" rx="15" fill="#fff" opacity=".18"/><text x="569" y="264" text-anchor="middle">100% offline</text>
+</g>
+</svg>
