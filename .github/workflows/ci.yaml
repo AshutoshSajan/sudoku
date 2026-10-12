@@ -2,12 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
     # Extension release: push a tag like ext-1.2.0 and only the
     # publish jobs run for it. Plain merges just verify.
     tags: ['ext-v*']
   pull_request:
-    branches: [main]
+    # PRs target dev (dev promotes to main), so both need runs.
+    branches: [main, dev]
   # Manual snap build: Actions tab → CI → Run workflow (or
   # `gh workflow run CI --ref main`). Uploads the .snap artifact.
   workflow_dispatch:
