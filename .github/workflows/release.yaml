@@ -122,25 +122,25 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
       - run: >
           flutter build apk --release --split-per-abi
-          --build-name=$VERSION --build-number=$BUILD_NUMBER
+          --build-name="$VERSION" --build-number="$BUILD_NUMBER"
       - run: >
           flutter build apk --release
-          --build-name=$VERSION --build-number=$BUILD_NUMBER
+          --build-name="$VERSION" --build-number="$BUILD_NUMBER"
       - run: >
           flutter build appbundle --release
-          --build-name=$VERSION --build-number=$BUILD_NUMBER
+          --build-name="$VERSION" --build-number="$BUILD_NUMBER"
       - run: |
           mkdir -p dist
           mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk \
-            dist/sudoku-$VERSION-android-armv7.apk
+            "dist/sudoku-$VERSION-android-armv7.apk"
           mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
-            dist/sudoku-$VERSION-android-arm64.apk
+            "dist/sudoku-$VERSION-android-arm64.apk"
           mv build/app/outputs/flutter-apk/app-x86_64-release.apk \
-            dist/sudoku-$VERSION-android-x86_64.apk
+            "dist/sudoku-$VERSION-android-x86_64.apk"
           mv build/app/outputs/flutter-apk/app-release.apk \
-            dist/sudoku-$VERSION-android-universal.apk
+            "dist/sudoku-$VERSION-android-universal.apk"
           mv build/app/outputs/bundle/release/app-release.aab \
-            dist/sudoku-$VERSION.aab
+            "dist/sudoku-$VERSION.aab"
           ls dist/
       - uses: actions/upload-artifact@v7
         with:
@@ -173,7 +173,7 @@ jobs:
       - run: flutter pub get
       - run: >
           flutter build linux --release
-          --build-name=$VERSION --build-number=$BUILD_NUMBER
+          --build-name="$VERSION" --build-number="$BUILD_NUMBER"
       - name: Install nfpm (latest release)
         run: |
           tag=$(gh api repos/goreleaser/nfpm/releases/latest --jq .tag_name)
@@ -190,7 +190,7 @@ jobs:
           nfpm package --config packaging/nfpm.yaml --packager deb --target dist/
           nfpm package --config packaging/nfpm.yaml --packager rpm --target dist/
           # LICENSE travels inside the tarball (deb/rpm get it via nfpm contents).
-          tar -czf dist/sudoku-$VERSION-linux-x64.tar.gz \
+          tar -czf "dist/sudoku-$VERSION-linux-x64.tar.gz" \
             -C build/linux/x64/release bundle -C "$GITHUB_WORKSPACE" LICENSE
           ls dist/
       - uses: actions/upload-artifact@v7
@@ -222,7 +222,7 @@ jobs:
       - run: flutter pub get
       - run: >
           flutter build linux --release
-          --build-name=$VERSION --build-number=$BUILD_NUMBER
+          --build-name="$VERSION" --build-number="$BUILD_NUMBER"
       - name: Fetch linuxdeploy + appimagetool
         run: |
           mkdir -p tools dist
@@ -250,8 +250,8 @@ jobs:
           test -f AppDir/usr/bin/lib/libapp.so
           test -d AppDir/usr/bin/data/flutter_assets
           # Stage 3: package the staged AppDir.
-          ARCH=x86_64 ./tools/appimagetool AppDir dist/Sudoku-$VERSION-x86_64.AppImage
-          ./dist/Sudoku-$VERSION-x86_64.AppImage --appimage-extract >/dev/null
+          ARCH=x86_64 ./tools/appimagetool AppDir "dist/Sudoku-$VERSION-x86_64.AppImage"
+          "./dist/Sudoku-$VERSION-x86_64.AppImage" --appimage-extract >/dev/null
           test -x squashfs-root/AppRun
           ls dist/
       - uses: actions/upload-artifact@v7
@@ -320,7 +320,7 @@ jobs:
       - run: |
           mkdir -p dist
           cp LICENSE build/
-          cd build && zip -qr ../dist/sudoku-$VERSION-web.zip web LICENSE
+          cd build && zip -qr "../dist/sudoku-$VERSION-web.zip" web LICENSE
           ls ../dist/
       - uses: actions/upload-artifact@v7
         with:
