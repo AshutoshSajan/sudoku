@@ -12,6 +12,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ### 🐛 Bug Fixes
 
+- *(ci)* Quote shell variables flagged by actionlint/shellcheck ([ef20bd3](https://github.com/AshutoshSajan/sudoku/commit/ef20bd34ef2a82883ee5dbc5d04ddccaa9412091))
 - *(fdroid)* Review fixes - gradle checksum, version 4 changelog ([62b7128](https://github.com/AshutoshSajan/sudoku/commit/62b71280056a0afc24c66f9e26157b5517e6faa3))
 - *(android)* Pin Gradle distribution SHA-256 in wrapper ([4beac89](https://github.com/AshutoshSajan/sudoku/commit/4beac89d0d96a1a6be9477a98df34bc91d150180))
 - *(license)* Bundle GPL text into all distributables ([8486e1d](https://github.com/AshutoshSajan/sudoku/commit/8486e1d88060b3456a0c00f9d7b550fd398b8b27))
