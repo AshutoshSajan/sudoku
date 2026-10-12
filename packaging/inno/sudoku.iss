@@ -22,6 +22,7 @@ WizardStyle=modern
 SetupIconFile=..\..\windows\runner\resources\app_icon.ico
 UninstallDisplayIcon={app}\sudoku.exe
 VersionInfoVersion={#AppVersion}
+LicenseFile=..\..\LICENSE
 
 [Files]
 Source: "..\..\build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion

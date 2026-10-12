@@ -3,15 +3,24 @@ name: Release
 # One-tag binary releases: push `vX.Y.Z` on main (or dispatch manually
 # for a dry run) and every distributable is built and attached to the
 # GitHub Release. Extension tags (`ext-v*`) are NOT matched here.
+# A weekly scheduled dry-run (full matrix, never publishes: the publish
+# step is tag-gated) catches toolchain bitrot between releases. Daily
+# would cost ~7x the minutes for no extra signal; bump the cron if needed.
 on:
   push:
     tags: ['v*']
+  schedule:
+    - cron: '0 6 * * 1'
   workflow_dispatch:
     inputs:
       version:
         description: 'Version X.Y.Z override (defaults to tag, else pubspec)'
         required: false
         default: ''
+      platforms:
+        description: 'Comma-separated subset to build: android,linux,appimage,windows,web,snap (default: all)'
+        required: false
+        default: 'all'
 
 permissions:
   contents: read
@@ -76,6 +85,12 @@ jobs:
 
   build-android:
     needs: resolve-version
+    # Tag pushes always build everything; manual dispatches may select a
+    # subset so a single-artifact fix costs one job, not nine.
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.platforms == 'all' ||
+      contains(inputs.platforms, 'android')
     runs-on: ubuntu-24.04
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
@@ -134,6 +149,10 @@ jobs:
 
   build-linux:
     needs: resolve-version
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.platforms == 'all' ||
+      contains(inputs.platforms, 'linux')
     # Oldest supported runner: glibc 2.35 baseline runs on Ubuntu 22.04
     # through the latest releases (forward-compatible), plus Debian 12+,
     # Fedora 36+ and RHEL 9+. A 24.04 build would not install on 22.04.
@@ -170,8 +189,9 @@ jobs:
           sed "s/@VERSION@/$VERSION/g" packaging/nfpm.yaml.in > packaging/nfpm.yaml
           nfpm package --config packaging/nfpm.yaml --packager deb --target dist/
           nfpm package --config packaging/nfpm.yaml --packager rpm --target dist/
+          # LICENSE travels inside the tarball (deb/rpm get it via nfpm contents).
           tar -czf "dist/sudoku-$VERSION-linux-x64.tar.gz" \
-            -C build/linux/x64/release bundle
+            -C build/linux/x64/release bundle -C "$GITHUB_WORKSPACE" LICENSE
           ls dist/
       - uses: actions/upload-artifact@v7
         with:
@@ -180,6 +200,10 @@ jobs:
 
   build-appimage:
     needs: resolve-version
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.platforms == 'all' ||
+      contains(inputs.platforms, 'appimage')
     # glibc floor: 24.04-built AppImages won't run on older distros.
     runs-on: ubuntu-22.04
     env:
@@ -221,6 +245,8 @@ jobs:
           # relative to the executable; linuxdeploy does not copy them.
           cp -r build/linux/x64/release/bundle/lib \
                 build/linux/x64/release/bundle/data AppDir/usr/bin/
+          # GPL: license text travels inside the image.
+          cp LICENSE AppDir/
           test -f AppDir/usr/bin/lib/libapp.so
           test -d AppDir/usr/bin/data/flutter_assets
           # Stage 3: package the staged AppDir.
@@ -235,6 +261,10 @@ jobs:
 
   build-windows:
     needs: resolve-version
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.platforms == 'all' ||
+      contains(inputs.platforms, 'windows')
     runs-on: windows-latest
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
@@ -253,7 +283,7 @@ jobs:
       - name: Portable zip
         run: >
           Compress-Archive
-          -Path build\windows\x64\runner\Release\*
+          -Path build\windows\x64\runner\Release\*,LICENSE
           -DestinationPath dist\sudoku-$env:VERSION-windows-x64-portable.zip
       # No EV cert for v1: SmartScreen will warn. Portable zip is the
       # no-friction alternative; signing is a documented follow-up.
@@ -272,6 +302,10 @@ jobs:
 
   build-web:
     needs: resolve-version
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.platforms == 'all' ||
+      contains(inputs.platforms, 'web')
     runs-on: ubuntu-24.04
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
@@ -285,7 +319,8 @@ jobs:
       - run: flutter build web --release
       - run: |
           mkdir -p dist
-          cd build && zip -qr "../dist/sudoku-$VERSION-web.zip" web
+          cp LICENSE build/
+          cd build && zip -qr "../dist/sudoku-$VERSION-web.zip" web LICENSE
           ls ../dist/
       - uses: actions/upload-artifact@v7
         with:
@@ -294,6 +329,10 @@ jobs:
 
   build-snap:
     needs: resolve-version
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.platforms == 'all' ||
+      contains(inputs.platforms, 'snap')
     runs-on: ubuntu-24.04
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
@@ -327,19 +366,56 @@ jobs:
       - build-windows
       - build-web
       - build-snap
+    # One red artifact must not void the rest: run on partial success and
+    # publish whatever built. Still skipped when setup itself failed or the
+    # run was cancelled.
+    if: >-
+      always() &&
+      !cancelled() &&
+      needs.resolve-version.result == 'success'
     permissions:
       contents: write
     runs-on: ubuntu-24.04
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
     steps:
+      # One download per artifact with continue-on-error: a failed or
+      # skipped build leaves no artifact, and that must not fail this job.
       - uses: actions/download-artifact@v8
+        continue-on-error: true
         with:
-          pattern: '*-dist'
+          name: android-dist
           path: dist
-          merge-multiple: true
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: linux-dist
+          path: dist
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: appimage-dist
+          path: dist
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: windows-dist
+          path: dist
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: web-dist
+          path: dist
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: snap-dist
+          path: dist
       - run: |
           ls -R dist
+          # Single top-level copy for the release page (per-artifact copies
+          # already travel inside the tarballs, zip, and AppImage).
+          cp LICENSE dist/
           (cd dist && sha256sum -- * > SHA256SUMS.txt)
           cat dist/SHA256SUMS.txt
       - uses: actions/upload-artifact@v7

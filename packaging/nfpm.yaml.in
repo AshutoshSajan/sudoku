@@ -13,6 +13,8 @@ depends:
 contents:
   - src: build/linux/x64/release/bundle/
     dst: /usr/lib/sudoku-puzzle-game/
+  - src: LICENSE
+    dst: /usr/share/doc/sudoku-puzzle-game/LICENSE
   - src: packaging/sudoku.desktop
     dst: /usr/share/applications/sudoku.desktop
   - src: web/icons/Icon-512.png

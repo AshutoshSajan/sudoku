@@ -1,0 +1,1 @@
+Snap Store release, one-tag multi-format binaries for Linux/Windows/Android/Web, and F-Droid packaging fixes.

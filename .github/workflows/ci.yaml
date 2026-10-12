@@ -2,17 +2,29 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
     # Extension release: push a tag like ext-1.2.0 and only the
     # publish jobs run for it. Plain merges just verify.
     tags: ['ext-v*']
   pull_request:
-    branches: [main]
+    # PRs target dev (dev promotes to main), so both need runs.
+    branches: [main, dev]
   # Manual snap build: Actions tab → CI → Run workflow (or
   # `gh workflow run CI --ref main`). Uploads the .snap artifact.
   workflow_dispatch:
 
 jobs:
+  # Static check for this file and release.yaml. No toolchain, ~20s.
+  actionlint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Download actionlint
+        shell: bash
+        run: bash <(curl -sSf https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+      - shell: bash
+        run: ./actionlint -color
+
   verify:
     runs-on: ubuntu-24.04
     steps:
@@ -38,7 +50,12 @@ jobs:
       - uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: -o CHANGELOG.md
+          # --github-token as argv: step env does not reliably reach the
+          # action's container, and without a token git-cliff silently skips
+          # the contributors lookup (no WARN). Secrets are masked in logs.
+          args: --github-token ${{ secrets.GITHUB_TOKEN }} -o CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Commit changelog
         run: |
           git config user.name "github-actions[bot]"
