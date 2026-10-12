@@ -13,6 +13,17 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Static check for this file and release.yaml. No toolchain, ~20s.
+  actionlint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Download actionlint
+        shell: bash
+        run: bash <(curl -sSf https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+      - shell: bash
+        run: ./actionlint -color
+
   verify:
     runs-on: ubuntu-24.04
     steps:
