@@ -1,0 +1,43 @@
+name: guard-main
+
+# Trunk armor for `main` — mirror of guard-dev.yml (see it for rationale).
+# `main` is the deployable trunk: release PRs (dev → main) merge here with
+# merge commits; tags vX.Y.Z are separate ref pushes and don't trigger this
+# workflow. The changelog bot's `docs: update changelog [skip ci]` push is
+# made with GITHUB_TOKEN and carries [skip ci], so it never starts this run.
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  trunk-shape:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: require merge-commit head, no force-push, no deletion
+        run: |
+          set -euo pipefail
+          payload="$GITHUB_EVENT_PATH"
+
+          head_commit="$(jq -r 'if .head_commit then .head_commit.id else "" end' "$payload")"
+          deleted="$(jq -r '.deleted // false' "$payload")"
+          if [ "$deleted" = "true" ] || [ -z "$head_commit" ]; then
+            echo "::error::refs/heads/main must never be deleted or pushed without a head commit — trunk armor"
+            exit 1
+          fi
+
+          forced="$(jq -r '.forced // false' "$payload")"
+          if [ "$forced" = "true" ]; then
+            echo "::error::force-push to refs/heads/main is forbidden — release PRs only"
+            exit 1
+          fi
+
+          parents="$(jq -r '.head_commit.parents | length' "$payload")"
+          if [ "$parents" -lt 2 ]; then
+            echo "::error::refs/heads/main head has ${parents} parent(s) — trunk pushes must be merge commits (squash merges count as violations; merge release PRs with \"Create a merge commit\")"
+            exit 1
+          fi
+
+          echo "guard-main ok: merge-commit head, no force, no deletion"

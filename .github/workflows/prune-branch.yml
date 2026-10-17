@@ -1,0 +1,67 @@
+name: prune-branch
+
+# Auto-deletes the task branch of a merged PR. ONE WRITER PER CONCERN:
+# this workflow is the only pruning mechanism — no inline prune steps in
+# other workflows. Never touches trunks (main|dev); only allowlisted
+# task-branch prefixes; proves the branch actually landed via
+# `git merge-base --is-ancestor` before deleting.
+
+on:
+  pull_request:
+    branches: [dev, main]
+    types: [closed]
+
+permissions:
+  contents: write
+
+jobs:
+  prune:
+    # Merged PRs only, from this repo (fork heads are not on origin).
+    if: >-
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    env:
+      PR_HEAD: ${{ github.event.pull_request.head.ref }}
+      PR_BASE: ${{ github.event.pull_request.base.ref }}
+      TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: delete merged task branch (allowlist + ancestry-proof + trunk-safe)
+        run: |
+          set -euo pipefail
+
+          # 1) Trunks are never auto-pruned.
+          case "$PR_HEAD" in
+            main|dev)
+              echo "skip: '$PR_HEAD' is a trunk — never auto-pruned"
+              exit 0;;
+          esac
+
+          # 2) Only task-branch prefixes on the allowlist are pruned.
+          case "$PR_HEAD" in
+            feat/*|fix/*|chore/*|ci/*|docs/*|perf/*|refactor/*|test/*|release/*|dependabot/*)
+              ;;
+            *)
+              echo "skip: '$PR_HEAD' is outside the prune allowlist"
+              exit 0;;
+          esac
+
+          # 3) Prove the branch landed on the base before deleting it:
+          #    `git merge-base --is-ancestor origin/head origin/base`.
+          scratch="$(mktemp -d)"
+          trap 'rm -rf "$scratch"' EXIT
+          git init -q "$scratch"
+          git -C "$scratch" remote add origin \
+            "https://x-access-token:${TOKEN}@github.com/${REPO}.git"
+          git -C "$scratch" fetch -q --no-tags origin \
+            "refs/heads/${PR_BASE}:refs/remotes/origin/${PR_BASE}" \
+            "refs/heads/${PR_HEAD}:refs/remotes/origin/${PR_HEAD}"
+          if ! git -C "$scratch" merge-base --is-ancestor \
+              "origin/${PR_HEAD}" "origin/${PR_BASE}"; then
+            echo "skip: '${PR_HEAD}' not an ancestor of origin/${PR_BASE} — landing unproven"
+            exit 0
+          fi
+
+          git -C "$scratch" push -q origin --delete "$PR_HEAD"
+          echo "pruned origin/${PR_HEAD}"

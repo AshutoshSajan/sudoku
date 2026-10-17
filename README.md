@@ -192,9 +192,15 @@ Open an [issue](https://github.com/AshutoshSajan/sudoku/issues) with your platfo
 ├── snap/                      # Snap Store packaging (core22)
 ├── extension/                 # Chrome/Firefox popup (embeds the web build)
 ├── fastlane/                  # F-Droid / store metadata + screenshots
-├── tool/netlify-build.sh      # Web CI bootstrap (Flutter from upstream)
+├── tool/
+│   ├── netlify-build.sh       # Web CI bootstrap (Flutter from upstream)
+│   ├── verify.sh              # Local gate: analyze + test (also pre-push)
+│   └── deps.sh                # Dependency audit (osv-scanner, pinned)
 ├── netlify.toml               # Web deploy config
-├── CONTRIBUTING.md            # Branching, releases, conventional commits
+├── AGENTS.md                  # Hard rules agents load (CLAUDE.md imports it)
+├── CONVENTIONS.md             # Canonical rule book: branches, CI, releases
+├── ROADMAP.md                 # Roadmap + working notes
+├── CONTRIBUTING.md            # Pointer to CONVENTIONS.md
 ├── LICENSE                    # GPL-3.0-only
 └── README.md
 ```
@@ -217,23 +223,23 @@ flutter build web --release
 flutter build apk
 ```
 
-- Every feature/fix goes on its own branch **from `dev`** (`feature/…`, `bugfix/…`, `docs/…`) with a [Conventional Commits](https://www.conventionalcommits.org/) message; see [CONTRIBUTING.md](CONTRIBUTING.md) for the release flow.
-- One tag (`vX.Y.Z` on `main`) builds and publishes every distributable — never commit to `main` directly.
+- Ship product work on its own branch **from `dev`** and open the PR into
+  `dev`; `dev` is promoted to `main` by a release PR, and a `vX.Y.Z` tag on
+  `main` builds and publishes every distributable. The full branch model,
+  trunk-safety rules, and release contract live in
+  [CONVENTIONS.md](CONVENTIONS.md) — agents, start at [AGENTS.md](AGENTS.md).
 
 ## 🗺 Roadmap
 
-- [x] Autosave with resume, keyboard support, in-game help, responsive layouts
-- [x] One-tag multi-format binary releases (apk/aab/deb/rpm/AppImage/snap/exe/web)
-- [x] Snap packaging, F-Droid metadata + submission
-- [ ] F-Droid inclusion (in review: [!51869](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/51869))
-- [ ] Chrome Web Store listing
-- [ ] Signed Firefox add-on
-- [ ] Snap Store listing
-- [ ] Signed Windows installer (no more SmartScreen warning)
+Shipped milestones, in-review work, and what's next live in
+[ROADMAP.md](ROADMAP.md) — including the store-listing status.
 
 ## 🤝 Contributing
 
-Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for branches, commits, and checks. For larger changes, open an issue first. Please run `flutter analyze && flutter test` before opening a PR.
+Issues and pull requests are welcome. For larger changes, open an issue
+first. Branching, commit format, hooks, and CI policy: in
+[CONVENTIONS.md](CONVENTIONS.md); please run `flutter analyze && flutter
+test` before opening a PR.
 
 ## 📄 License
 

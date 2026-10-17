@@ -1,0 +1,65 @@
+name: deps-audit
+
+# Vulnerability gate (CONVENTIONS.md → Dependencies). osv-scanner over
+# pubspec.lock, version AND sha256 pinned and checked with `sha256sum -c -`.
+# SDK-free by design (static Go binary — no Flutter/Dart install), so the
+# job is seconds-cheap on the free plan. Fail the run on findings with a
+# patch hint. Schedule fires on the default branch (main).
+
+on:
+  schedule:
+    - cron: '41 5 * * 1' # weekly Mondays 05:41 UTC — off-round minute
+  pull_request:
+    branches: [main]
+    paths:
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  osv-scan:
+    runs-on: ubuntu-24.04
+    env:
+      OSV_SCANNER_VERSION: '2.7.0'
+      OSV_SCANNER_SHA256: '160c6253e2922e9e0a6a9771c5c4c40a4b3c6090b34a3cdd5e80c96cc2e4218b'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            pubspec.yaml
+            pubspec.lock
+          persist-credentials: false
+
+      - name: install pinned scanner (sha256-verified)
+        run: |
+          set -euo pipefail
+          scratch="$(mktemp -d)"
+          trap 'rm -rf "$scratch"' EXIT
+          url="https://github.com/google/osv-scanner/releases/download/v${OSV_SCANNER_VERSION}/osv-scanner_linux_amd64"
+          curl -fsSL "$url" -o "$scratch/osv-scanner"
+          printf '%s  %s\n' "$OSV_SCANNER_SHA256" "$scratch/osv-scanner" | sha256sum -c -
+          chmod +x "$scratch/osv-scanner"
+          sudo mv "$scratch/osv-scanner" /usr/local/bin/osv-scanner
+
+      - name: scan pubspec.lock — fail with patch hint on findings
+        run: |
+          set -euo pipefail
+          if [ ! -f pubspec.lock ]; then
+            echo "::error::pubspec.lock missing — run flutter pub get and commit it so audits are deterministic"
+            exit 1
+          fi
+          status=0
+          osv-scanner scan --lockfile=pubspec.lock "$PWD" || status=$?
+          case "$status" in
+            0)
+              echo "no known vulnerabilities in pubspec.lock";;
+            1)
+              echo "::error file=pubspec.lock::vulnerable dependencies found — upgrade to the FIXED version shown in the table above (flutter pub upgrade <pkg>) and re-run"
+              exit 1;;
+            *)
+              echo "::error::osv-scanner failed (exit ${status}) — check scanner pin or network"
+              exit "$status";;
+          esac

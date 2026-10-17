@@ -1,0 +1,16 @@
+version: 2
+# One block per ecosystem this repo ships, plus the Actions tooling that
+# ships it. All PRs target the integration trunk `dev` (never `main`).
+# Updates:
+updates:
+  - package-ecosystem: "pub"
+    directory: "/"
+    schedule:
+      interval: weekly
+    target-branch: "dev"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: weekly
+    target-branch: "dev"
