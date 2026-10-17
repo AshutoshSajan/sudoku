@@ -4,6 +4,14 @@
 # review it, then commit it with your next change.
 # (With CI minutes available, the changelog job does this automatically.)
 
+# Offline merges must stay offline: a dead network never blocks a merge,
+# so errors are ignored. Pruning stops local task branches from ghosting
+# after a merge deletes them on the remote.
+git fetch --prune origin >/dev/null 2>&1 || true
+
+# Keep this clone's hooks wired (the pre-push trunk gate especially).
+git config core.hooksPath .githooks || true
+
 if ! command -v git-cliff >/dev/null 2>&1; then
   echo "⚠️  git-cliff not installed — skipping local CHANGELOG update." >&2
   exit 0

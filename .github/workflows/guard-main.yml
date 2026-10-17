@@ -1,0 +1,54 @@
+name: guard-main
+
+# Trunk armor for `main` — mirror of guard-dev.yml (see it for rationale
+# and the webhook-parents schema note). The deployable trunk receives
+# only release-PR merge commits; tags vX.Y.Z are separate ref pushes and
+# don't trigger this workflow. The changelog bot's `docs: update
+# changelog [skip ci]` push carries [skip ci], so it never starts a run.
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  trunk-shape:
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: require merge-commit head, no force-push, no deletion
+        run: |
+          set -euo pipefail
+          payload="$GITHUB_EVENT_PATH"
+
+          # Deletion — ref went away or no head commit came with the push.
+          deleted="$(jq -r '.deleted // false' "$payload")"
+          after="$(jq -r '.after // ""' "$payload")"
+          if [ "$deleted" = "true" ] || [ -z "$after" ] \
+             || [ "$after" = "0000000000000000000000000000000000000000" ]; then
+            echo "::error::refs/heads/main must never be deleted or pushed without commits — trunk armor"
+            exit 1
+          fi
+
+          forced="$(jq -r '.forced // false' "$payload")"
+          if [ "$forced" = "true" ]; then
+            echo "::error::force-push to refs/heads/main is forbidden — release PRs only"
+            exit 1
+          fi
+
+          # Parent count from the Commits REST API (webhooks don't ship it).
+          # Fail closed: if the API is unreachable, treat it as a violation.
+          parents="$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${after}" \
+            | jq -e '.parents | length')" || {
+            echo "::error::could not read parents of ${after} from the Commits API — failing closed"
+            exit 1
+          }
+          if [ "$parents" -lt 2 ]; then
+            echo "::error::refs/heads/main head has ${parents} parent(s) — trunk pushes must be merge commits (squash merges count as violations; merge release PRs with \"Create a merge commit\")"
+            exit 1
+          fi
+
+          echo "guard-main ok: merge-commit head (${parents} parents), no force, no deletion"
