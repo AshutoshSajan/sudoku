@@ -1,0 +1,55 @@
+#!/bin/bash
+# pre-push — trunk armor + the local gate. Full policy: CONVENTIONS.md.
+# Order matters: the trunk gate runs BEFORE anything else, before any
+# skip paths. Bypass (--no-verify, SUDOKU_HOOK_GATE) is only allowed as
+# a deliberate, stated exception — name it in the PR or a comment.
+
+# ── 1) Trunk gate: every ref token the push carries ─────────────────────
+# git hands the hook `<remote-name> <remote-url>` on ARGV and lines of
+# `<local-ref> <local-sha> <remote-ref> <remote-sha>` on STDIN. Deletion
+# pushes (":refs/heads/dev", "--delete dev") only carry the remote ref,
+# so both channels are scanned. The boundary regex needs a non-name char
+# around refs/heads/(main|dev) so refs/heads/mainfoo does not match.
+
+TRUNK_RE='(^|[^A-Za-z0-9_/-])refs/heads/(main|dev)([^A-Za-z0-9_/-]|$)'
+
+refuse() {
+  {
+    echo "⛔ pre-push: refusing ${1} (refs/heads/main|dev)." >&2
+    echo "   Rule (CONVENTIONS.md → Trunk invariants): the two trunks are never pushed" >&2
+    echo "   directly — updates, --force and deletions included. Trunk changes come only" >&2
+    echo "   from merged PRs. Instead:" >&2
+    echo "     git push -u origin <task-branch> && gh pr create --base dev" >&2
+  } >&2
+  exit 1
+}
+
+# Consume STDIN first so a push with a big ref list cannot race us.
+while IFS= read -r push_line || [ -n "$push_line" ]; do
+  printf '%s\n' "$push_line" | grep -Eq "$TRUNK_RE" && refuse "aborted trunk push (stdin)"
+done
+
+for push_arg in "$@"; do
+  printf '%s\n' "$push_arg" | grep -Eq "$TRUNK_RE" && refuse "aborted trunk push (argv)"
+done
+
+# ── 2) Resolve the repo root, then strip git's hook env ─────────────────
+# Hooks run with GIT_DIR/GIT_WORK_TREE/GIT_INDEX_FILE/GIT_OBJECT_DIRECTORY/
+# GIT_ALTERNATE_OBJECT_DIRECTORIES/GIT_PREFIX exported; tools that run
+# their own git (flutter's version stamp reading HEAD → "0.0.0-unknown")
+# then describe the WRONG repo. cd to the toplevel and unset before
+# spawning the gate.
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+cd "$ROOT" || exit 1
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY \
+  GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_PREFIX || true
+
+# ── 3) The project's existing local gate ────────────────────────────────
+# flutter analyze + flutter test, verbatim from CI's verify job.
+# SUDOKU_HOOK_GATE lets the contract tests in test/conventions_test.dart
+# inject a cheap gate; that override is itself a stated-exception bypass.
+if [ -n "${SUDOKU_HOOK_GATE:-}" ]; then
+  bash -c "$SUDOKU_HOOK_GATE"
+else
+  bash "$ROOT/tool/verify.sh"
+fi
