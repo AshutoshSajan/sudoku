@@ -12,6 +12,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ### 🐛 Bug Fixes
 
+- *(ci)* Count trunk parents via the commits API — payload lacks parents ([b0a2c5f](https://github.com/AshutoshSajan/sudoku/commit/b0a2c5f8e4880c26de07cd5387ca109faad26100))
 - *(ci)* Quote shell variables flagged by actionlint/shellcheck ([ef20bd3](https://github.com/AshutoshSajan/sudoku/commit/ef20bd34ef2a82883ee5dbc5d04ddccaa9412091))
 - *(fdroid)* Review fixes - gradle checksum, version 4 changelog ([62b7128](https://github.com/AshutoshSajan/sudoku/commit/62b71280056a0afc24c66f9e26157b5517e6faa3))
 - *(android)* Pin Gradle distribution SHA-256 in wrapper ([4beac89](https://github.com/AshutoshSajan/sudoku/commit/4beac89d0d96a1a6be9477a98df34bc91d150180))
