@@ -1,10 +1,10 @@
 name: guard-main
 
-# Trunk armor for `main` — mirror of guard-dev.yml (see it for rationale).
-# `main` is the deployable trunk: release PRs (dev → main) merge here with
-# merge commits; tags vX.Y.Z are separate ref pushes and don't trigger this
-# workflow. The changelog bot's `docs: update changelog [skip ci]` push is
-# made with GITHUB_TOKEN and carries [skip ci], so it never starts this run.
+# Trunk armor for `main` — mirror of guard-dev.yml (see it for rationale
+# and the webhook-parents schema note). The deployable trunk receives
+# only release-PR merge commits; tags vX.Y.Z are separate ref pushes and
+# don't trigger this workflow. The changelog bot's `docs: update
+# changelog [skip ci]` push carries [skip ci], so it never starts a run.
 
 on:
   push:
@@ -15,16 +15,20 @@ permissions: {}
 jobs:
   trunk-shape:
     runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: require merge-commit head, no force-push, no deletion
         run: |
           set -euo pipefail
           payload="$GITHUB_EVENT_PATH"
 
-          head_commit="$(jq -r 'if .head_commit then .head_commit.id else "" end' "$payload")"
+          # Deletion — ref went away or no head commit came with the push.
           deleted="$(jq -r '.deleted // false' "$payload")"
-          if [ "$deleted" = "true" ] || [ -z "$head_commit" ]; then
-            echo "::error::refs/heads/main must never be deleted or pushed without a head commit — trunk armor"
+          after="$(jq -r '.after // ""' "$payload")"
+          if [ "$deleted" = "true" ] || [ -z "$after" ] \
+             || [ "$after" = "0000000000000000000000000000000000000000" ]; then
+            echo "::error::refs/heads/main must never be deleted or pushed without commits — trunk armor"
             exit 1
           fi
 
@@ -34,10 +38,17 @@ jobs:
             exit 1
           fi
 
-          parents="$(jq -r '.head_commit.parents | length' "$payload")"
+          # Parent count from the Commits REST API (webhooks don't ship it).
+          # Fail closed: if the API is unreachable, treat it as a violation.
+          parents="$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${after}" \
+            | jq -e '.parents | length')" || {
+            echo "::error::could not read parents of ${after} from the Commits API — failing closed"
+            exit 1
+          }
           if [ "$parents" -lt 2 ]; then
             echo "::error::refs/heads/main head has ${parents} parent(s) — trunk pushes must be merge commits (squash merges count as violations; merge release PRs with \"Create a merge commit\")"
             exit 1
           fi
 
-          echo "guard-main ok: merge-commit head, no force, no deletion"
+          echo "guard-main ok: merge-commit head (${parents} parents), no force, no deletion"

@@ -133,13 +133,22 @@ void main() {
       final guardDev = _read('.github/workflows/guard-dev.yml');
       expect(guardDev, contains('branches: [dev]'));
       expect(guardDev, contains('permissions: {}'));
-      expect(guardDev, contains('head_commit.parents | length'));
-      expect(guardDev, contains('.forced'));
+      // Parents MUST come from the Commits API — webhook payloads don't
+      // carry `.head_commit.parents` (regression guard; 0-parent false
+      // failure shipped once: run 39043848837).
+      expect(guardDev, isNot(contains('head_commit.parents')));
+      expect(guardDev, contains('.deleted // false'));
+      expect(guardDev, contains('.forced // false'));
+      expect(guardDev, contains('commits/\${after}'));
+      expect(guardDev, contains('.parents | length'));
+      expect(guardDev, contains('failing closed'), reason: 'API errors must fail closed');
       expect(guardDev, isNot(contains('actions/checkout')));
 
       final guardMain = _read('.github/workflows/guard-main.yml');
       expect(guardMain, contains('branches: [main]'));
-      expect(guardMain, contains('head_commit.parents | length'));
+      expect(guardMain, isNot(contains('head_commit.parents')));
+      expect(guardMain, contains('commits/\${after}'));
+      expect(guardMain, contains('failing closed'));
       expect(guardMain, isNot(contains('actions/checkout')));
     });
 
