@@ -35,7 +35,17 @@ Status, todos, and working notes. Product facts live in the
 - Release contract of record: tag is version truth; tag the newest `main`
   merge commit *without* `[skip ci]` (the changelog bot's commit suppresses
   tag-push runs); re-rolls require deleting the published GitHub Release in
-  the browser first.
+  the browser first. All deploys (app, extension, hosted web) fire on tag
+  pushes only — hosted web deploys via `release.yaml` → `deploy-web` need
+  the `NETLIFY_DEPLOY_HOOK_URL` repo secret (create a Production-scoped
+  build hook in the Netlify UI, then add the secret), so the web site stays
+  frozen until that is done; `netlify.toml`'s `ignore` command already
+  skips all git-triggered builds, so merges to main are inert meanwhile.
+- Web-deploy hardening (from the PR review): `tool/netlify-build.sh` should
+  inject `--build-name` from the newest `v*` tag (`git describe --tags
+  --abbrev=0 --match 'v*'`) to match `release.yaml`'s builds, and
+  `deploy-web` could grow a post-deploy live check once a site URL is
+  available as a repo variable.
 - When store listings land, replace the "Store status" note in
   `README.md#-installation` — the only place store status appears.
 - `conventions` stack review date: revisit guards after the first release
