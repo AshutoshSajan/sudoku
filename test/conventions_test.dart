@@ -292,9 +292,12 @@ void main() {
       final ci = _read('.github/workflows/ci.yaml');
       // Anchored to the active job-level `if:` line: only `main` pushes
       // (= release promos) may ever write the changelog.
+      // Anchored to the changelog JOB BLOCK, not just the gate line:
+      // another job gaining the same `if:` must not satisfy this pin.
       expect(ci,
           contains(RegExp(
-              r"^    if: github\.event_name == 'push' "
+              r"^  changelog:\n    needs: verify\n    "
+              r"if: github\.event_name == 'push' "
               r"&& github\.ref == 'refs/heads/main'",
               multiLine: true)),
           reason: 'the changelog bot must stay main-pushes-only');
