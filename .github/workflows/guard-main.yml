@@ -2,9 +2,9 @@ name: guard-main
 
 # Trunk armor for `main` — mirror of guard-dev.yml (see it for rationale
 # and the webhook-parents schema note). The deployable trunk receives
-# only release-PR merge commits; tags vX.Y.Z are separate ref pushes and
-# don't trigger this workflow. The changelog bot's `docs: update
-# changelog [skip ci]` push carries [skip ci], so it never starts a run.
+# only release-PR merge commits (the changelog bot opens PRs into main —
+# it never pushes the trunk); tags vX.Y.Z are separate ref pushes and
+# don't trigger this workflow.
 
 on:
   push:

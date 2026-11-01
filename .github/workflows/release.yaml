@@ -384,10 +384,10 @@ jobs:
     # A build hook instead of Netlify's Git integration, because a tag is
     # not a branch: Netlify builds the branch it is pointed at (main), and
     # it offers no "deploy when a tag lands" trigger. Tags are cut on the
-    # newest `[skip ci]`-free merge commit (CONVENTIONS.md §6), so a hook —
-    # which rebuilds main's tip — ships the tagged merge commit plus (in
-    # the steady case) the changelog bot's `[skip ci]` fix-up: no app-code
-    # delta. If a trunk merge snuck in between tag cut and this POST, the
+    # newest merge commit (CONVENTIONS.md §6), so a hook — which rebuilds
+    # main's tip — ships exactly the tagged commit in the steady case
+    # (the changelog bot opens PRs now; it no longer commits fix-ups to
+    # the trunk). If a trunk merge snuck in between tag cut and this POST, the
     # site can ship newer-than-tagged code — tag and let this run promptly.
     # netlify.toml's ignore command keeps every git-triggered build
     # skipped, so this POST is the only way the site republishes.
@@ -521,9 +521,10 @@ jobs:
           path: dist
       - run: mkdir -p dist
       - name: Render the release changelog (git-cliff)
-        # CHANGELOG.md in the repo is written ONLY by ci.yaml's bot on
-        # main pushes; the release itself carries the freshly rendered
-        # section as a per-release asset — no trunk writes here, `dist/*`
+        # The committed CHANGELOG.md is updated only through ci.yaml's
+        # bot PRs into main (trunk writes happen via PR only); the release
+        # itself carries the freshly rendered section as a per-release
+        # asset — no trunk writes here, `dist/*`
         # uploads it via the existing Release files glob and SHA256SUMS.
         # Same action as ci.yaml's bot, because the runner has no git-cliff
         # binary preinstalled; OUTPUT points the render at the asset path

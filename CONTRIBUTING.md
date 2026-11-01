@@ -17,6 +17,5 @@ git push -u origin feat/awesome-thing
 gh pr create --base dev                # into dev; merge = merge commit
 ```
 
-Releases: a PR from `dev` into `main`, then tag the newest merge commit
-**without** `[skip ci]` in its message as `vX.Y.Z` — details in
-[CONVENTIONS.md §6](CONVENTIONS.md).
+Releases: a PR from `dev` into `main`, then tag the newest merge commit as
+`vX.Y.Z` — details in [CONVENTIONS.md §6](CONVENTIONS.md).
