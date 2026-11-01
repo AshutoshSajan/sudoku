@@ -46,6 +46,11 @@ Status, todos, and working notes. Product facts live in the
   --abbrev=0 --match 'v*'`) to match `release.yaml`'s builds, and
   `deploy-web` could grow a post-deploy live check once a site URL is
   available as a repo variable.
+- GitHub Pages mirror: flip Settings → Pages → Build source to
+  "GitHub Actions" once (until then `deploy-gh-pages` fails loudly); after
+  the first successful tag deploy, add the mirror link
+  (`https://ashutoshsajan.github.io/sudoku/`) beside the Netlify links in
+  `README.md`.
 - When store listings land, replace the "Store status" note in
   `README.md#-installation` — the only place store status appears.
 - `conventions` stack review date: revisit guards after the first release

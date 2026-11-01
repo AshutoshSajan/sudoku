@@ -326,6 +326,56 @@ jobs:
         with:
           name: web-dist
           path: dist/
+      # GitHub Pages mirror (CONVENTIONS.md §6): the project site serves
+      # under /sudoku/, so rebuild with the matching --base-href — the
+      # root-based build above would 404 every asset there. Kept after the
+      # zip step so both variants come from the same commit; the second
+      # build reuses the compiled kernel cache, so it is the cheap leg.
+      - run: flutter build web --release --base-href="/sudoku/"
+      - run: |
+          mkdir -p site && cp -r build/web/. site/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: gh-pages-site
+          path: site/
+
+  deploy-gh-pages:
+    # The second hosted mirror of the release: the web app on GitHub
+    # Pages. Same release moment as deploy-web — ONLY a pushed `v*` tag
+    # deploys; dispatches build but stop here. Requires the repo's
+    # Settings → Pages → Build source = "GitHub Actions" (flip once;
+    # until then this job fails loudly with that hint).
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [resolve-version, publish]
+    runs-on: ubuntu-24.04
+    # deploy-pages publishes through the pages environment and the
+    # github-actions OIDC token — both are required by the action itself.
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    # Pages deploys are serialized repo-wide, not per-run like the rest of
+    # the release: two tag pushes must publish in tag order, not race.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: gh-pages-site
+          path: site/
+      # Loud pre-check: fails with Pages' own error when the source is not
+      # "GitHub Actions" yet, instead of a failure half a pipeline later.
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
 
   deploy-web:
     # The release moment, continued: once the GitHub Release is out, the

@@ -107,14 +107,18 @@ Dependabot PRs — like all PRs into `dev` — must be merged with
   tag-push runs.
 - **Releases happen only on tag pushes — merging to `main` deploys
   nothing.** App releases are `v*` tags (`release.yaml`), extensions are
-  `ext-v*` tags (`ci.yaml`), and the hosted web site follows the release
-  only via `release.yaml` → `deploy-web`: once the GitHub Release is out it
-  POSTs the Netlify production build hook (`NETLIFY_DEPLOY_HOOK_URL`
-  secret; the job fails loudly when it is unset). `netlify.toml`'s `ignore`
-  command skips every git-triggered build, so main merges and PR previews
-  never publish — a build hook, which is not a Git-event build, is the only
-  republish path, and it rebuilds `main`'s tip (another reason to cut the
-  tag on the merge commit you intend to ship).
+  `ext-v*` tags (`ci.yaml`), and the hosted web follows the release only
+  through `release.yaml`'s tag-gated jobs. `deploy-web` POSTs the
+  Netlify production build hook (`NETLIFY_DEPLOY_HOOK_URL` secret; loud
+  failure when unset), and `deploy-gh-pages` republishes the GitHub Pages
+  mirror (`https://ashutoshsajan.github.io/sudoku/` — a
+  `--base-href="/sudoku/"` rebuild of `build/web`, since the project site
+  serves from a subpath). `netlify.toml`'s `ignore` command skips every
+  git-triggered build, so main merges and PR previews never publish —
+  the build hook, which is not a Git-event build, is Netlify's only
+  republish path and rebuilds `main`'s tip (another reason to cut the
+  tag on the merge commit you intend to ship); Pages deploys the artifact
+  built by the release run itself.
 - Third-party hosting (e.g. Render) must follow the same rule: trigger from
   tag pushes only — no main-merge autodeploys. No Render service ships this
   app today.
