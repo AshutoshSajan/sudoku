@@ -207,6 +207,54 @@ void main() {
     });
   });
 
+  group('releases', () {
+    test('release.yaml fires on v* tags only, never from trunk branches', () {
+      final release = _read('.github/workflows/release.yaml');
+      expect(release, contains("tags: ['v*']"));
+      expect(release, isNot(contains('branches: [main]')),
+          reason: 'app releases must not trigger from main merges');
+      expect(release, isNot(contains("tags: ['ext-v*']")),
+          reason: 'extension tags must never drive app releases');
+    });
+
+    test('hosted web deploy is tag-gated, hook-driven, secrets-checked', () {
+      final release = _read('.github/workflows/release.yaml');
+      expect(release, contains('deploy-web'));
+      // Deploy gate: tag pushes only — dispatches build, never deploy.
+      expect(release, contains("startsWith(github.ref, 'refs/tags/v')"));
+      expect(release, contains('NETLIFY_DEPLOY_HOOK_URL'));
+      // Hooks fire after the GitHub Release is out (ludo's sequencing).
+      expect(release, contains('needs: [resolve-version, publish]'));
+      // Build-hook POST, not a netlify-cli deploy: minutes-cheap, one secret.
+      expect(release, contains("curl -fsS --max-time 60 -X POST"));
+      expect(release, isNot(contains('site-web')),
+          reason: 'no site artifact — Netlify rebuilds main\'s tip itself');
+      expect(release, isNot(contains('netlify-cli')),
+          reason: 'hook POST keeps the deploy minutes-cheap');
+    });
+
+    test('netlify.toml ignores every git-triggered build', () {
+      final toml = _read('netlify.toml');
+      expect(toml, contains("ignore = \"bash -c 'exit 0'\""),
+          reason: 'git-event builds (main merges, PR previews) never deploy');
+      expect(toml, isNot(contains('every push to main')),
+          reason: 'netlify.toml must not promise main-merge autodeploys');
+      // The build-script gate was replaced by the ignore command — its
+      // tag check would abort legitimate build-hook rebuilds of main's tip.
+      final script = _read('tool/netlify-build.sh');
+      expect(script, isNot(contains('release-gate')));
+      expect(script, isNot(contains('points-at')));
+    });
+
+    test('CONVENTIONS.md records the tag-only release rule', () {
+      final conventions = _read('CONVENTIONS.md');
+      expect(conventions, contains('deploy-web'));
+      expect(conventions, contains('NETLIFY_DEPLOY_HOOK_URL'));
+      expect(conventions, contains('tag pushes only'));
+      expect(conventions, contains('ignore'));
+    });
+  });
+
   group('docs', () {
     test('AGENTS.md carries the inline hard rules', () {
       final agents = _read('AGENTS.md');

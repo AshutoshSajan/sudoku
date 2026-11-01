@@ -98,13 +98,26 @@ Dependabot PRs — like all PRs into `dev` — must be merged with
 - Weekly: Dependabot PRs into `dev`; vulnerability gate `deps-audit.yml`.
 - Local parity: `tool/deps.sh` (add `--offline` to skip all network work).
 
-## 6. Release contract (unchanged; see also CONTRIBUTING pointer)
+## 6. Release contract (see also CONTRIBUTING pointer)
 
 - Version truth is the tag: `vX.Y.Z` on `main`, injected via
   `--build-name/--build-number`; `snap/snapcraft.yaml` version must equal it.
 - Tag the newest **merge commit without `[skip ci]`** in its message, never
   bare HEAD — the changelog bot's `[skip ci]` commit on `main` suppresses
   tag-push runs.
+- **Releases happen only on tag pushes — merging to `main` deploys
+  nothing.** App releases are `v*` tags (`release.yaml`), extensions are
+  `ext-v*` tags (`ci.yaml`), and the hosted web site follows the release
+  only via `release.yaml` → `deploy-web`: once the GitHub Release is out it
+  POSTs the Netlify production build hook (`NETLIFY_DEPLOY_HOOK_URL`
+  secret; the job fails loudly when it is unset). `netlify.toml`'s `ignore`
+  command skips every git-triggered build, so main merges and PR previews
+  never publish — a build hook, which is not a Git-event build, is the only
+  republish path, and it rebuilds `main`'s tip (another reason to cut the
+  tag on the merge commit you intend to ship).
+- Third-party hosting (e.g. Render) must follow the same rule: trigger from
+  tag pushes only — no main-merge autodeploys. No Render service ships this
+  app today.
 - Re-rolling a failed release: delete the published GitHub Release in the
   browser **first**, then move the tag (`git tag -f vX.Y.Z <merge-sha>`).
 - `ext-v*` tags release extensions only; they never trigger app releases.

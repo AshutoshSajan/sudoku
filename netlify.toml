@@ -1,8 +1,18 @@
-# Netlify builds the Flutter web app on every push to main.
-# tool/netlify-build.sh downloads the stable Flutter SDK (the build image
-# doesn't ship one) and runs `flutter build web --release`. Manual
-# `netlify deploy --prod` of a local build still works too.
+# Web deploys happen ONLY from `vX.Y.Z` tag pushes, so the site config
+# stays simple. netlify.toml's ignore command below skips every
+# git-triggered build (autodeploys, preview and branch deploys) — nothing
+# publishes from a merge to main or a PR. The tag-gated deploy-web job in
+# release.yaml fires the Production build hook (a build hook bypasses this
+# ignore gate, which is only evaluated for Git-event builds) once the
+# GitHub Release is out; it needs the NETLIFY_DEPLOY_HOOK_URL secret.
+# See CONVENTIONS.md §6 for the release contract.
+
 [build]
+  # THE DEPLOY GATE: no Git event deploys — release tags do. A tag is not a
+  # branch, so Netlify could not trigger off one itself; release.yaml's
+  # deploy-web job POSTs the production build hook instead, which rebuilds
+  # main's tip (the commit the tag was cut on — keep tag-cutting on main).
+  ignore = "bash -c 'exit 0'"
   command = "bash tool/netlify-build.sh"
   publish = "build/web"
 
