@@ -71,7 +71,10 @@ for later, they simply are not taken:
 - `CHANGELOG.md` is a CI-only product, written by git-cliff (`cliff.toml`)
   — never hand-edited, never locally regenerated: on `main` pushes (release
   promos) ci.yaml's bot renders the full file and **opens/updates a PR
-  with it into `main`** — the trunk itself is never pushed directly.
+  with it into `main`** — the trunk itself is never pushed directly. The
+  PR path needs the repo Actions setting *Allow GitHub Actions to create
+  and approve pull requests* (Settings → Actions → General → Workflow
+  permissions; off by default, and the only failure the run #130 bot hit).
   release.yaml renders the tagged section into the per-release Release
   asset (`CHANGELOG-vX.Y.Z.md`). `.githooks/post-merge` renders nothing,
   so pulls (dev included) leave the working tree changelog-free. Read-only
