@@ -69,11 +69,12 @@ for later, they simply are not taken:
   enforced by `.githooks/commit-msg`. Types: `feat fix docs style
   refactor perf test build ci chore revert`. Merge commits are exempt.
 - `CHANGELOG.md` is a CI-only product, written by git-cliff (`cliff.toml`)
-  — never hand-edited, never locally regenerated: ci.yaml's bot rewrites
-  the full file on `main` pushes (release promos), and release.yaml
-  renders the tagged section into the per-release Release asset
-  (`CHANGELOG-vX.Y.Z.md`). `.githooks/post-merge` renders nothing, so
-  pulls (dev included) leave the working tree changelog-free. Read-only
+  — never hand-edited, never locally regenerated: on `main` pushes (release
+  promos) ci.yaml's bot renders the full file and **opens/updates a PR
+  with it into `main`** — the trunk itself is never pushed directly.
+  release.yaml renders the tagged section into the per-release Release
+  asset (`CHANGELOG-vX.Y.Z.md`). `.githooks/post-merge` renders nothing,
+  so pulls (dev included) leave the working tree changelog-free. Read-only
   local preview: `git cliff --unreleased`.
 - **Verify before push:** `bash tool/verify.sh` (flutter analyze + flutter
   test — same as CI). `.githooks/pre-push` runs this gate and refuses
@@ -91,7 +92,7 @@ for later, they simply are not taken:
 | `prune-branch.yml` | PR into `dev`/`main` **closed & merged** | deletes the merged task branch — only allowlisted prefixes, never trunks, and only after `git merge-base --is-ancestor origin/<head> origin/<base>` proves the landing |
 | `deps-audit.yml` | weekly cron + PRs into `dev`/`main` touching `pubspec.yaml`/`pubspec.lock` | `osv-scanner scan --lockfile=pubspec.lock` (pinned by version **and** sha256, verified with `sha256sum -c -`), fails on findings with an upgrade hint — no SDK involved |
 | `dependabot.yml` | weekly | `pub` + `github-actions` ecosystems, all PRs → `dev` |
-| `ci.yaml` (existing) | push/PR `dev`+`main` | `actionlint` (with shellcheck), `verify` (analyze+test), changelog bot, extension publishes on `ext-v*` |
+| `ci.yaml` (existing) | push/PR `dev`+`main` | `actionlint` (with shellcheck), `verify` (analyze+test), changelog PR bot, extension publishes on `ext-v*` |
 
 Dependabot PRs — like all PRs into `dev` — must be merged with
 **Create a merge commit**, or `guard-dev` goes red.
@@ -108,9 +109,9 @@ Dependabot PRs — like all PRs into `dev` — must be merged with
 
 - Version truth is the tag: `vX.Y.Z` on `main`, injected via
   `--build-name/--build-number`; `snap/snapcraft.yaml` version must equal it.
-- Tag the newest **merge commit without `[skip ci]`** in its message, never
-  bare HEAD — the changelog bot's `[skip ci]` commit on `main` suppresses
-  tag-push runs.
+- Tag the newest **merge commit** on `main`, never bare HEAD. The changelog
+  bot opens PRs now and no longer commits to the trunk, so no `[skip ci]`
+  suppression marker exists in main history (the old caveat is obsolete).
 - **Releases happen only on tag pushes — merging to `main` deploys
   nothing.** App releases are `v*` tags (`release.yaml`), extensions are
   `ext-v*` tags (`ci.yaml`), and the hosted web follows the release only
@@ -128,15 +129,16 @@ Dependabot PRs — like all PRs into `dev` — must be merged with
 - Third-party hosting (e.g. Render) must follow the same rule: trigger from
   tag pushes only — no main-merge autodeploys. No Render service ships this
   app today.
-- **The changelog is a CI-only product.** ci.yaml's bot is the sole writer
-  of the committed `CHANGELOG.md` (on `main` pushes, i.e. release promos —
-  the file stays committed because `fdroid/com.ashutoshsajan.sudoku.yml`
-  links it); release.yaml renders the tagged section as a per-release
-  Release asset (`CHANGELOG-vX.Y.Z.md`, git-cliff `--latest` via
-  orhun/git-cliff-action). Nothing writes the changelog locally:
-  `.githooks/post-merge` does no render, so pulls (on `dev` and task
-  branches alike) never churn the working tree. Read-only preview:
-  `git cliff --unreleased`.
+- **The changelog is a CI-only product.** ci.yaml's bot authors every
+  update of the committed `CHANGELOG.md`: on `main` pushes (release promos)
+  it renders the file and opens/updates a PR into `main` instead of
+  pushing the trunk (the file stays committed because
+  `fdroid/com.ashutoshsajan.sudoku.yml` links it); release.yaml renders
+  the tagged section as a per-release Release asset
+  (`CHANGELOG-vX.Y.Z.md`, git-cliff `--latest` via orhun/git-cliff-action).
+  Nothing writes the changelog locally: `.githooks/post-merge` does no
+  render, so pulls (on `dev` and task branches alike) never churn the
+  working tree. Read-only preview: `git cliff --unreleased`.
 - Re-rolling a failed release: delete the published GitHub Release in the
   browser **first**, then move the tag (`git tag -f vX.Y.Z <merge-sha>`).
 - `ext-v*` tags release extensions only; they never trigger app releases.

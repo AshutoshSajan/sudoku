@@ -33,9 +33,9 @@ Status, todos, and working notes. Product facts live in the
 ## Working notes (retire when done)
 
 - Release contract of record: tag is version truth; tag the newest `main`
-  merge commit *without* `[skip ci]` (the changelog bot's commit suppresses
-  tag-push runs); re-rolls require deleting the published GitHub Release in
-  the browser first. All deploys (app, extension, hosted web) fire on tag
+  merge commit (the changelog bot opens PRs now — no `[skip ci]` commits
+  in main history to dodge); re-rolls require deleting the published
+  GitHub Release in the browser first. All deploys (app, extension, hosted web) fire on tag
   pushes only — hosted web deploys via `release.yaml` → `deploy-web` need
   the `NETLIFY_DEPLOY_HOOK_URL` repo secret (create a Production-scoped
   build hook in the Netlify UI, then add the secret), so the web site stays
@@ -45,10 +45,12 @@ Status, todos, and working notes. Product facts live in the
   `.githooks/post-merge` rendered git-cliff locally after every merge
   (the Oct-9 bot commits visible in dev history are pre-split residue —
   the bot itself has always been main-only). Fix: the hook renders
-  nothing anymore; changelog truth = the bot writes the committed file
-  on `main` pushes (file stays committed — F-Droid metadata links it),
-  and release.yaml ships `CHANGELOG-vX.Y.Z.md` as a Release asset
-  (git-cliff-action `--latest`).
+  nothing anymore; changelog truth = the bot authors the committed file
+  on `main` pushes and now opens/updates a `docs/changelog-bot` PR into
+  `main` instead of pushing the trunk (branch auto-deleted by
+  prune-branch after each merge; file stays committed — F-Droid metadata
+  links it), and release.yaml ships `CHANGELOG-vX.Y.Z.md` as a Release
+  asset (git-cliff-action `--latest`).
 - Web-deploy hardening (from the PR review): `tool/netlify-build.sh` should
   inject `--build-name` from the newest `v*` tag (`git describe --tags
   --abbrev=0 --match 'v*'`) to match `release.yaml`'s builds, and

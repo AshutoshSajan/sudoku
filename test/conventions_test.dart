@@ -288,12 +288,12 @@ void main() {
       expect(conventions, contains('--base-href="/sudoku/"'));
     });
 
-    test('changelog is a CI-only product (bot on main + release asset)', () {
+    test('changelog is a CI-only product (bot PRs into main + release asset)',
+        () {
       final ci = _read('.github/workflows/ci.yaml');
-      // Anchored to the active job-level `if:` line: only `main` pushes
-      // (= release promos) may ever write the changelog.
       // Anchored to the changelog JOB BLOCK, not just the gate line:
       // another job gaining the same `if:` must not satisfy this pin.
+      // Gate stays: only `main` pushes (= release promos) trigger it.
       expect(ci,
           contains(RegExp(
               r"^  changelog:\n    needs: verify\n    "
@@ -301,6 +301,30 @@ void main() {
               r"&& github\.ref == 'refs/heads/main'",
               multiLine: true)),
           reason: 'the changelog bot must stay main-pushes-only');
+      // Branch+PR mode: the render must never hit the trunk directly —
+      // the bot pushes docs/changelog-bot (auto-pruned after each merge)
+      // and opens/updates its PR into main.
+      expect(
+          ci, contains(RegExp(r'^      pull-requests: write$', multiLine: true)),
+          reason: 'opening the PR needs the pull-requests scope');
+      final bot =
+          ci.substring(ci.indexOf(RegExp(r'^  changelog:$', multiLine: true)));
+      expect(bot, contains('git push -f origin docs/changelog-bot'));
+      expect(bot, contains('--base main'));
+      expect(bot, contains('gh pr create'));
+      expect(bot, contains('--title "docs: update changelog"'));
+      // Loop prevention is the quiet-diff exit: the bare trunk push and
+      // the [skip ci] suppression marker must be gone for good.
+      expect(bot, contains('git diff --cached --quiet CHANGELOG.md'));
+      expect(bot, isNot(contains('git push\n')),
+          reason: 'no bare push of the checked-out trunk');
+      expect(ci, isNot(contains('[skip ci]')),
+          reason: 'the bot writes no trunk commits, so nothing to suppress');
+      // The bot's own commits must never list themselves in the render
+      // (case-insensitive: the old direct-push history used a capitalized
+      // variant subject).
+      expect(_read('cliff.toml'),
+          contains('{ message = "(?i)docs: update changelog", skip = true }'));
       final release = _read('.github/workflows/release.yaml');
       // The runner has no git-cliff binary — the bot's action does it.
       expect(release, contains('orhun/git-cliff-action@v4'));

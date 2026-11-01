@@ -37,17 +37,23 @@ jobs:
       - run: flutter analyze
       - run: flutter test
 
-  # CHANGELOG.md has exactly one writer: this job, in CI, on `main`
-  # pushes only (= release promos). `dev` never carries changelog commits,
-  # so pulls on task branches and dev stay changelog-free. The file is
-  # linked by fdroid/com.ashutoshsajan.sudoku.yml (F-Droid metadata), so
-  # it must stay committed — the release run additionally ships the fresh
-  # section as a per-version asset (release.yaml), no trunk writes there.
+  # CHANGELOG.md has exactly one author: this bot, in CI. A `main` push
+  # (= release promo) renders the file, force-pushes the reuse-able
+  # `docs/changelog-bot` branch and opens/updates its PR into `main` —
+  # the trunk is never pushed directly (changes to trunks come only via
+  # PRs). prune-branch deletes the branch after each merge (`docs/*`
+  # allowlist), so the name is free again for the next run. `dev` never
+  # carries changelog commits, so pulls on task branches and dev stay
+  # changelog-free. The file is linked by
+  # fdroid/com.ashutoshsajan.sudoku.yml (F-Droid metadata), so it must
+  # stay committed — the release run additionally ships the fresh section
+  # as a per-version asset (release.yaml), no trunk writes there.
   changelog:
     needs: verify
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: write
+      pull-requests: write
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -62,13 +68,34 @@ jobs:
           args: --github-token ${{ secrets.GITHUB_TOKEN }} -o CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Commit changelog
+      - name: Open/update the changelog PR into main
+        # Trunks change only through PRs. Loop prevention is the
+        # quiet-diff exit: after a changelog PR merges, the next promo's
+        # render matches the committed file and the run exits green
+        # early — no commit, no branch push (no suppression marker needed).
+        # cliff.toml skips the bot's own "docs: update changelog" subject
+        # and PR-merge commits are not Conventional, so the render never
+        # lists itself.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add CHANGELOG.md
-          git diff --cached --quiet || git commit -m "docs: update changelog [skip ci]"
-          git push
+          if git diff --cached --quiet CHANGELOG.md; then
+            echo "::notice::changelog already current — nothing to open"
+            exit 0
+          fi
+          git checkout -B docs/changelog-bot
+          git commit -m "docs: update changelog"
+          git push -f origin docs/changelog-bot
+          if gh pr list --head docs/changelog-bot --state open --limit 1 --json number | grep -q '"number"'; then
+            echo "::notice::changelog PR already open — the force-push above updated it"
+          else
+            gh pr create --base main --head docs/changelog-bot \
+              --title "docs: update changelog" \
+              --body "Automated CHANGELOG.md render (git-cliff) from the latest main push. CI opens this PR so the trunk changes only via PRs — merge with a merge commit."
+          fi
 
   # ── Extension publishing (disabled until store secrets are configured) ──
   # Setup: add the secrets below in repo Settings → Secrets → Actions,
