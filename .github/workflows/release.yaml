@@ -476,6 +476,17 @@ jobs:
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
     steps:
+      # git-cliff needs history to bound the release range and the tags to
+      # stamp the section — release-day cost only (~seconds). It runs
+      # FIRST on purpose: actions/checkout cleans untracked files by
+      # default, so a checkout below the artifact steps could wipe every
+      # downloaded dist/ binary. Today that only can't happen because the
+      # workspace is fresh on ephemeral runners — an implementation
+      # detail, not a contract; ordering makes the safety structural.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
       # One download per artifact with continue-on-error: a failed or
       # skipped build leaves no artifact, and that must not fail this job.
       - uses: actions/download-artifact@v8
@@ -508,12 +519,6 @@ jobs:
         with:
           name: snap-dist
           path: dist
-      # git-cliff needs history to bound the release range and the tags to
-      # stamp the section — release-day cost only (~seconds).
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-          fetch-tags: true
       - run: mkdir -p dist
       - name: Render the release changelog (git-cliff)
         # CHANGELOG.md in the repo is written ONLY by ci.yaml's bot on

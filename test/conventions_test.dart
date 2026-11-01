@@ -292,9 +292,12 @@ void main() {
       final ci = _read('.github/workflows/ci.yaml');
       // Anchored to the active job-level `if:` line: only `main` pushes
       // (= release promos) may ever write the changelog.
+      // Anchored to the changelog JOB BLOCK, not just the gate line:
+      // another job gaining the same `if:` must not satisfy this pin.
       expect(ci,
           contains(RegExp(
-              r"^    if: github\.event_name == 'push' "
+              r"^  changelog:\n    needs: verify\n    "
+              r"if: github\.event_name == 'push' "
               r"&& github\.ref == 'refs/heads/main'",
               multiLine: true)),
           reason: 'the changelog bot must stay main-pushes-only');
@@ -311,6 +314,31 @@ void main() {
       expect(File('${_root()}${Platform.pathSeparator}CHANGELOG.md').existsSync(),
           isTrue);
       expect(_read('fdroid/com.ashutoshsajan.sudoku.yml'), contains('CHANGELOG.md'));
+    });
+
+    test('publish: checkout is step 0, before every artifact download', () {
+      final release = _read('.github/workflows/release.yaml');
+      final publish = release
+          .substring(release.indexOf(RegExp(r'^  publish:$', multiLine: true)));
+      // Order is load-bearing: checkout's reset (untracked-file cleanup on
+      // an existing repo) below the downloads could wipe dist/ on a
+      // reused workspace and ship a release with changelog but no
+      // binaries. A comment alone would fail no CI — this pin does.
+      final checkout = publish.indexOf('actions/checkout@v7');
+      expect(checkout, greaterThanOrEqualTo(0));
+      for (final artifact in [
+        'name: android-dist',
+        'name: linux-dist',
+        'name: appimage-dist',
+        'name: windows-dist',
+        'name: web-dist',
+        'name: snap-dist',
+      ]) {
+        expect(checkout, lessThan(publish.indexOf(artifact)));
+      }
+      final mkdir = publish.indexOf('mkdir -p dist');
+      expect(checkout, lessThan(mkdir));
+      expect(mkdir, lessThan(publish.indexOf('orhun/git-cliff-action@v4')));
     });
   });
 
