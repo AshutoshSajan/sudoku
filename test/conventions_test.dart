@@ -120,11 +120,15 @@ void main() {
       }
     });
 
-    test('post-merge prunes remote refs + self-heals hooksPath', () {
+    test('post-merge prunes refs + self-heals hooksPath, no changelog render', () {
       final postMerge = _read('.githooks/post-merge');
       expect(postMerge, contains('git fetch --prune origin'));
       expect(postMerge, contains('core.hooksPath .githooks'));
       expect(postMerge, contains('|| true'), reason: 'offline merges stay offline');
+      // Pull-driven changelog churn was the incident this hook caused:
+      // the local render is gone for good, because CHANGELOG.md is a
+      // CI-only product (pinned in the releases group below).
+      expect(postMerge, isNot(contains('git cliff')));
     });
   });
 
@@ -280,6 +284,31 @@ void main() {
       expect(conventions, contains('Netlify production build hook'));
       expect(conventions, contains('deploy-gh-pages'));
       expect(conventions, contains('--base-href="/sudoku/"'));
+    });
+
+    test('changelog is a CI-only product (bot on main + release asset)', () {
+      final ci = _read('.github/workflows/ci.yaml');
+      // Anchored to the active job-level `if:` line: only `main` pushes
+      // (= release promos) may ever write the changelog.
+      expect(ci,
+          contains(RegExp(
+              r"^    if: github\.event_name == 'push' "
+              r"&& github\.ref == 'refs/heads/main'",
+              multiLine: true)),
+          reason: 'the changelog bot must stay main-pushes-only');
+      final release = _read('.github/workflows/release.yaml');
+      // The runner has no git-cliff binary — the bot's action does it.
+      expect(release, contains('orhun/git-cliff-action@v4'));
+      expect(release, contains('args: --latest'));
+      // Raw yaml carries the GH-Action expression, pinned escaped in Dart.
+      expect(release, contains('CHANGELOG-v\${{ env.VERSION }}.md'));
+      // The tagged section needs full history and tag names.
+      expect(release, contains('fetch-depth: 0'));
+      expect(release, contains('fetch-tags: true'));
+      // The committed file stays: F-Droid metadata links it.
+      expect(File('${_root()}${Platform.pathSeparator}CHANGELOG.md').existsSync(),
+          isTrue);
+      expect(_read('fdroid/com.ashutoshsajan.sudoku.yml'), contains('CHANGELOG.md'));
     });
   });
 
