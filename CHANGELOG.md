@@ -22,6 +22,8 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 ### 📚 Documentation
 
+- *(release)* Changelog PR bot needs the create-PR Actions toggle ([cd18f5c](https://github.com/AshutoshSajan/sudoku/commit/cd18f5c3182b2716dca2a55f4fa76a08effe64e6))
+- *(agents)* Ambient gh auth only — no token plumbing, no privileged settings ([6d6a28f](https://github.com/AshutoshSajan/sudoku/commit/6d6a28fa49a93992cbc1a78f237503891f281351))
 - *(readme)* Banner, badges, screenshots, store install matrix ([e513c51](https://github.com/AshutoshSajan/sudoku/commit/e513c512d5fb2008ccc728ff305953c5a7ab9372))
 - Tag the merge commit, not HEAD, plus release re-roll procedure ([d900430](https://github.com/AshutoshSajan/sudoku/commit/d900430ffc45af1bcb3af49b0a76acdd79faa37f))
 
@@ -29,6 +31,7 @@ from Conventional Commits by [git-cliff](https://git-cliff.org).
 
 
 - @AshutoshSajan
+
 
 
 
