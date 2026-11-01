@@ -50,7 +50,11 @@ Status, todos, and working notes. Product facts live in the
   `main` instead of pushing the trunk (branch auto-deleted by
   prune-branch after each merge; file stays committed — F-Droid metadata
   links it), and release.yaml ships `CHANGELOG-vX.Y.Z.md` as a Release
-  asset (git-cliff-action `--latest`).
+  asset (git-cliff-action `--latest`). Enabler: the repo Actions setting
+  *Allow GitHub Actions to create and approve pull requests* — off by
+  default; without it the bot fails at `gh pr create` with
+  `GraphQL: GitHub Actions is not permitted to create or approve pull
+  requests` (run #130).
 - Web-deploy hardening (from the PR review): `tool/netlify-build.sh` should
   inject `--build-name` from the newest `v*` tag (`git describe --tags
   --abbrev=0 --match 'v*'`) to match `release.yaml`'s builds, and
