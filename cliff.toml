@@ -1,7 +1,8 @@
 # git-cliff configuration — Conventional Commits changelog.
-# CHANGELOG.md is a CI-only product (CONVENTIONS.md §3): ci.yaml's bot
-# regenerates the full file on `main` pushes, and release.yaml renders
-# `--latest` into the per-release Release asset (CHANGELOG-vX.Y.Z.md).
+# CHANGELOG.md is a CI-only product (CONVENTIONS.md §3): on `main` pushes
+# ci.yaml's bot opens a PR with the regenerated file (the trunk is never
+# pushed directly), and release.yaml renders `--latest` into the
+# per-release Release asset (CHANGELOG-vX.Y.Z.md).
 # Locally, rendering is a read-only preview only:
 #   git cliff --unreleased
 
@@ -52,7 +53,9 @@ commit_preprocessors = [
 ]
 commit_parsers = [
   # Keep first: the changelog bot's own commits must never list themselves.
-  { message = "^docs: update changelog", skip = true },
+  # Case-insensitive: the pre-2026 direct-push history used a capitalized
+  # subject variant ("docs: Update changelog [skip ci]").
+  { message = "(?i)docs: update changelog", skip = true },
   { message = "^feat", group = "<!-- 0 -->🚀 Features" },
   { message = "^fix", group = "<!-- 1 -->🐛 Bug Fixes" },
   { message = "^perf", group = "<!-- 2 -->⚡ Performance" },
