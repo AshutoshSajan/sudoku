@@ -254,12 +254,32 @@ void main() {
       expect(script, isNot(contains('points-at')));
     });
 
+    test('GitHub Pages mirror is tag-gated and builds the subpath variant', () {
+      final release = _read('.github/workflows/release.yaml');
+      // Anchored to the YAML job definition, not a prose mention.
+      expect(release,
+          contains(RegExp(r'^\s{2}deploy-gh-pages:\s*$', multiLine: true)));
+      // Project site serves under /sudoku/ — the mirror build must rebase.
+      expect(release, contains('--base-href="/sudoku/"'));
+      // Canonical Pages Actions flow + its required grants.
+      expect(release, contains('actions/configure-pages@v6'));
+      expect(release, contains('actions/upload-pages-artifact@v5'));
+      expect(release, contains('actions/deploy-pages@v5'));
+      expect(release, contains('pages: write'));
+      expect(release, contains('id-token: write'));
+      expect(release, contains('name: github-pages'));
+      // Deploy steps read the mirror artifact only.
+      expect(release, contains('name: gh-pages-site'));
+    });
+
     test('CONVENTIONS.md records the tag-only release rule', () {
       final conventions = _read('CONVENTIONS.md');
       expect(conventions, contains('deploy-web'));
       expect(conventions, contains('NETLIFY_DEPLOY_HOOK_URL'));
       expect(conventions, contains('tag pushes only'));
       expect(conventions, contains('Netlify production build hook'));
+      expect(conventions, contains('deploy-gh-pages'));
+      expect(conventions, contains('--base-href="/sudoku/"'));
     });
   });
 
