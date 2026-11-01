@@ -5,7 +5,8 @@
 # release.yaml fires the Production build hook (a build hook bypasses this
 # ignore gate, which is only evaluated for Git-event builds) once the
 # GitHub Release is out; it needs the NETLIFY_DEPLOY_HOOK_URL secret.
-# See CONVENTIONS.md §6 for the release contract.
+# See CONVENTIONS.md §6 for the release contract. A manual `netlify deploy
+# --prod` of a local build still works but is out of band.
 
 [build]
   # THE DEPLOY GATE: no Git event deploys — release tags do. A tag is not a

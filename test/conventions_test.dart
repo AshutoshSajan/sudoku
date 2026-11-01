@@ -219,14 +219,19 @@ void main() {
 
     test('hosted web deploy is tag-gated, hook-driven, secrets-checked', () {
       final release = _read('.github/workflows/release.yaml');
-      expect(release, contains('deploy-web'));
+      // Anchored to the YAML job definition, not a prose mention.
+      expect(release,
+          contains(RegExp(r'^\s{2}deploy-web:\s*$', multiLine: true)),
+          reason: 'the deploy-web job must actually exist');
       // Deploy gate: tag pushes only — dispatches build, never deploy.
       expect(release, contains("startsWith(github.ref, 'refs/tags/v')"));
       expect(release, contains('NETLIFY_DEPLOY_HOOK_URL'));
       // Hooks fire after the GitHub Release is out (ludo's sequencing).
       expect(release, contains('needs: [resolve-version, publish]'));
-      // Build-hook POST, not a netlify-cli deploy: minutes-cheap, one secret.
-      expect(release, contains("curl -fsS --max-time 60 -X POST"));
+      // Build-hook POST (with retry), not a netlify-cli deploy: one secret,
+      // seconds-cheap, no artifact to freight.
+      expect(release,
+          contains("curl -fsS --max-time 60 --retry 3 --retry-delay 2 -X POST"));
       expect(release, isNot(contains('site-web')),
           reason: 'no site artifact — Netlify rebuilds main\'s tip itself');
       expect(release, isNot(contains('netlify-cli')),
@@ -235,8 +240,11 @@ void main() {
 
     test('netlify.toml ignores every git-triggered build', () {
       final toml = _read('netlify.toml');
-      expect(toml, contains("ignore = \"bash -c 'exit 0'\""),
-          reason: 'git-event builds (main merges, PR previews) never deploy');
+      // Anchored to the active key line — a comment mentioning `ignore`
+      // must not satisfy this.
+      expect(toml, contains(RegExp(r'^\s*ignore\s*=', multiLine: true)),
+          reason: 'the ignore gate must be an active [build] key');
+      expect(toml, contains("ignore = \"bash -c 'exit 0'\""));
       expect(toml, isNot(contains('every push to main')),
           reason: 'netlify.toml must not promise main-merge autodeploys');
       // The build-script gate was replaced by the ignore command — its
@@ -251,7 +259,7 @@ void main() {
       expect(conventions, contains('deploy-web'));
       expect(conventions, contains('NETLIFY_DEPLOY_HOOK_URL'));
       expect(conventions, contains('tag pushes only'));
-      expect(conventions, contains('ignore'));
+      expect(conventions, contains('Netlify production build hook'));
     });
   });
 

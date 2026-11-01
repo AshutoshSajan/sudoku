@@ -333,11 +333,14 @@ jobs:
     #
     # A build hook instead of Netlify's Git integration, because a tag is
     # not a branch: Netlify builds the branch it is pointed at (main), and
-    # it offers no "deploy when a tag lands" trigger. The tag is cut on the
-    # main tip (CONVENTIONS.md §6), so a hook — which rebuilds main's tip —
-    # deploys the tagged commit. netlify.toml's ignore command keeps every
-    # git-triggered build skipped, so this POST is the only way the site
-    # republishes.
+    # it offers no "deploy when a tag lands" trigger. Tags are cut on the
+    # newest `[skip ci]`-free merge commit (CONVENTIONS.md §6), so a hook —
+    # which rebuilds main's tip — ships the tagged merge commit plus (in
+    # the steady case) the changelog bot's `[skip ci]` fix-up: no app-code
+    # delta. If a trunk merge snuck in between tag cut and this POST, the
+    # site can ship newer-than-tagged code — tag and let this run promptly.
+    # netlify.toml's ignore command keeps every git-triggered build
+    # skipped, so this POST is the only way the site republishes.
     #
     # Dispatches must not repoint production hosting: the tag-shaped `if`
     # guards the job directly. Job-level env rather than a step `if` on
@@ -361,13 +364,14 @@ jobs:
           echo '::error::NETLIFY_DEPLOY_HOOK_URL is unset.'
           exit 1
       - name: Deploy web (Netlify build hook)
-        # A 200 means the Production build is queued, not finished —
-        # tool/netlify-build.sh does the real verification of the site it
-        # ships. No artifact is uploaded: Netlify rebuilds main's tip
+        # A 200 means the Production build is queued, not finished — a
+        # broken web build fails in Netlify's build log and publishes
+        # nothing, leaving the previous release live; re-run this job to
+        # re-POST. No artifact is uploaded: Netlify rebuilds main's tip
         # itself.
         run: |
           echo "Netlify: deploying $VERSION (main @ $GITHUB_SHA)"
-          curl -fsS --max-time 60 -X POST -d '{}' "$NETLIFY_DEPLOY_HOOK_URL" > /dev/null
+          curl -fsS --max-time 60 --retry 3 --retry-delay 2 -X POST -d '{}' "$NETLIFY_DEPLOY_HOOK_URL" > /dev/null
           echo 'Netlify build queued (hook accepted).'
 
   build-snap:
