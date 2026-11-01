@@ -10,7 +10,9 @@ on:
   schedule:
     - cron: '41 5 * * 1' # weekly Mondays 05:41 UTC — off-round minute
   pull_request:
-    branches: [main]
+    # Both trunks: dev is where dependency PRs actually land first
+    # (dependabot targets dev), main is the deployable gate.
+    branches: [dev, main]
     paths:
       - 'pubspec.yaml'
       - 'pubspec.lock'

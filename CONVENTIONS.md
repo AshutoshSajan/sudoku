@@ -83,7 +83,7 @@ for later, they simply are not taken:
 | `guard-dev.yml` | push to `dev` | head is a merge commit (<2 parents fails — direct commits **and** squashes), no force, no deletion; read from the event payload with `jq`, no checkout |
 | `guard-main.yml` | push to `main` | same armor for the deployable trunk |
 | `prune-branch.yml` | PR into `dev`/`main` **closed & merged** | deletes the merged task branch — only allowlisted prefixes, never trunks, and only after `git merge-base --is-ancestor origin/<head> origin/<base>` proves the landing |
-| `deps-audit.yml` | weekly cron + PRs into `main` touching `pubspec.yaml`/`pubspec.lock` | `osv-scanner scan --lockfile=pubspec.lock` (pinned by version **and** sha256, verified with `sha256sum -c -`), fails on findings with an upgrade hint — no SDK involved |
+| `deps-audit.yml` | weekly cron + PRs into `dev`/`main` touching `pubspec.yaml`/`pubspec.lock` | `osv-scanner scan --lockfile=pubspec.lock` (pinned by version **and** sha256, verified with `sha256sum -c -`), fails on findings with an upgrade hint — no SDK involved |
 | `dependabot.yml` | weekly | `pub` + `github-actions` ecosystems, all PRs → `dev` |
 | `ci.yaml` (existing) | push/PR `dev`+`main` | `actionlint` (with shellcheck), `verify` (analyze+test), changelog bot, extension publishes on `ext-v*` |
 
