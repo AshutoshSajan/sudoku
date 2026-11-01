@@ -183,13 +183,15 @@ void main() {
       }
     });
 
-    test('deps-audit: pinned scanner, sha256 gate, cron, PR-into-main gate', () {
+    test('deps-audit: pinned scanner, sha256 gate, cron, PR-into-dev+main gate', () {
       final audit = _read('.github/workflows/deps-audit.yml');
       expect(audit, contains('osv-scanner scan --lockfile=pubspec.lock'));
       expect(audit, contains('sha256sum -c -'));
       expect(audit, contains('cron:'));
       expect(audit, contains('pull_request:'));
-      expect(audit, contains('branches: [main]'));
+      // dev is where dependabot PRs land — they must be audited before
+      // merge, not discovered by the weekly cron afterwards.
+      expect(audit, contains('branches: [dev, main]'));
       expect(_shaOf(audit), hasLength(64));
     });
 
