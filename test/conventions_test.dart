@@ -120,11 +120,15 @@ void main() {
       }
     });
 
-    test('post-merge prunes remote refs + self-heals hooksPath', () {
+    test('post-merge prunes refs + self-heals hooksPath, no changelog render', () {
       final postMerge = _read('.githooks/post-merge');
       expect(postMerge, contains('git fetch --prune origin'));
       expect(postMerge, contains('core.hooksPath .githooks'));
       expect(postMerge, contains('|| true'), reason: 'offline merges stay offline');
+      // Pull-driven changelog churn was the incident this hook caused:
+      // the local render is gone for good, because CHANGELOG.md is a
+      // CI-only product (pinned in the releases group below).
+      expect(postMerge, isNot(contains('git cliff')));
     });
   });
 
@@ -179,13 +183,15 @@ void main() {
       }
     });
 
-    test('deps-audit: pinned scanner, sha256 gate, cron, PR-into-main gate', () {
+    test('deps-audit: pinned scanner, sha256 gate, cron, PR-into-dev+main gate', () {
       final audit = _read('.github/workflows/deps-audit.yml');
       expect(audit, contains('osv-scanner scan --lockfile=pubspec.lock'));
       expect(audit, contains('sha256sum -c -'));
       expect(audit, contains('cron:'));
       expect(audit, contains('pull_request:'));
-      expect(audit, contains('branches: [main]'));
+      // dev is where dependabot PRs land — they must be audited before
+      // merge, not discovered by the weekly cron afterwards.
+      expect(audit, contains('branches: [dev, main]'));
       expect(_shaOf(audit), hasLength(64));
     });
 
@@ -204,6 +210,135 @@ void main() {
       expect(_shaOf(audit), _shaOf(local), reason: 'scanner sha256 must match CI');
       expect(_versionOf(audit), isNotEmpty);
       expect(_versionOf(audit), _versionOf(local), reason: 'scanner version must match CI');
+    });
+  });
+
+  group('releases', () {
+    test('release.yaml fires on v* tags only, never from trunk branches', () {
+      final release = _read('.github/workflows/release.yaml');
+      expect(release, contains("tags: ['v*']"));
+      expect(release, isNot(contains('branches: [main]')),
+          reason: 'app releases must not trigger from main merges');
+      expect(release, isNot(contains("tags: ['ext-v*']")),
+          reason: 'extension tags must never drive app releases');
+    });
+
+    test('hosted web deploy is tag-gated, hook-driven, secrets-checked', () {
+      final release = _read('.github/workflows/release.yaml');
+      // Anchored to the YAML job definition, not a prose mention.
+      expect(release,
+          contains(RegExp(r'^\s{2}deploy-web:\s*$', multiLine: true)),
+          reason: 'the deploy-web job must actually exist');
+      // Deploy gate: tag pushes only — dispatches build, never deploy.
+      expect(release, contains("startsWith(github.ref, 'refs/tags/v')"));
+      expect(release, contains('NETLIFY_DEPLOY_HOOK_URL'));
+      // Hooks fire after the GitHub Release is out (ludo's sequencing).
+      expect(release, contains('needs: [resolve-version, publish]'));
+      // Build-hook POST (with retry), not a netlify-cli deploy: one secret,
+      // seconds-cheap, no artifact to freight.
+      expect(release,
+          contains("curl -fsS --max-time 60 --retry 3 --retry-delay 2 -X POST"));
+      expect(release, isNot(contains('site-web')),
+          reason: 'no site artifact — Netlify rebuilds main\'s tip itself');
+      expect(release, isNot(contains('netlify-cli')),
+          reason: 'hook POST keeps the deploy minutes-cheap');
+    });
+
+    test('netlify.toml ignores every git-triggered build', () {
+      final toml = _read('netlify.toml');
+      // Anchored to the active key line — a comment mentioning `ignore`
+      // must not satisfy this.
+      expect(toml, contains(RegExp(r'^\s*ignore\s*=', multiLine: true)),
+          reason: 'the ignore gate must be an active [build] key');
+      expect(toml, contains("ignore = \"bash -c 'exit 0'\""));
+      expect(toml, isNot(contains('every push to main')),
+          reason: 'netlify.toml must not promise main-merge autodeploys');
+      // The build-script gate was replaced by the ignore command — its
+      // tag check would abort legitimate build-hook rebuilds of main's tip.
+      final script = _read('tool/netlify-build.sh');
+      expect(script, isNot(contains('release-gate')));
+      expect(script, isNot(contains('points-at')));
+    });
+
+    test('GitHub Pages mirror is tag-gated and builds the subpath variant', () {
+      final release = _read('.github/workflows/release.yaml');
+      // Anchored to the YAML job definition, not a prose mention.
+      expect(release,
+          contains(RegExp(r'^\s{2}deploy-gh-pages:\s*$', multiLine: true)));
+      // Project site serves under /sudoku/ — the mirror build must rebase.
+      expect(release, contains('--base-href="/sudoku/"'));
+      // Canonical Pages Actions flow + its required grants.
+      expect(release, contains('actions/configure-pages@v6'));
+      expect(release, contains('actions/upload-pages-artifact@v5'));
+      expect(release, contains('actions/deploy-pages@v5'));
+      expect(release, contains('pages: write'));
+      expect(release, contains('id-token: write'));
+      expect(release, contains('name: github-pages'));
+      // Deploy steps read the mirror artifact only.
+      expect(release, contains('name: gh-pages-site'));
+    });
+
+    test('CONVENTIONS.md records the tag-only release rule', () {
+      final conventions = _read('CONVENTIONS.md');
+      expect(conventions, contains('deploy-web'));
+      expect(conventions, contains('NETLIFY_DEPLOY_HOOK_URL'));
+      expect(conventions, contains('tag pushes only'));
+      expect(conventions, contains('Netlify production build hook'));
+      expect(conventions, contains('deploy-gh-pages'));
+      expect(conventions, contains('--base-href="/sudoku/"'));
+    });
+
+    test('changelog is a CI-only product (bot on main + release asset)', () {
+      final ci = _read('.github/workflows/ci.yaml');
+      // Anchored to the active job-level `if:` line: only `main` pushes
+      // (= release promos) may ever write the changelog.
+      // Anchored to the changelog JOB BLOCK, not just the gate line:
+      // another job gaining the same `if:` must not satisfy this pin.
+      expect(ci,
+          contains(RegExp(
+              r"^  changelog:\n    needs: verify\n    "
+              r"if: github\.event_name == 'push' "
+              r"&& github\.ref == 'refs/heads/main'",
+              multiLine: true)),
+          reason: 'the changelog bot must stay main-pushes-only');
+      final release = _read('.github/workflows/release.yaml');
+      // The runner has no git-cliff binary — the bot's action does it.
+      expect(release, contains('orhun/git-cliff-action@v4'));
+      expect(release, contains('args: --latest'));
+      // Raw yaml carries the GH-Action expression, pinned escaped in Dart.
+      expect(release, contains('CHANGELOG-v\${{ env.VERSION }}.md'));
+      // The tagged section needs full history and tag names.
+      expect(release, contains('fetch-depth: 0'));
+      expect(release, contains('fetch-tags: true'));
+      // The committed file stays: F-Droid metadata links it.
+      expect(File('${_root()}${Platform.pathSeparator}CHANGELOG.md').existsSync(),
+          isTrue);
+      expect(_read('fdroid/com.ashutoshsajan.sudoku.yml'), contains('CHANGELOG.md'));
+    });
+
+    test('publish: checkout is step 0, before every artifact download', () {
+      final release = _read('.github/workflows/release.yaml');
+      final publish = release
+          .substring(release.indexOf(RegExp(r'^  publish:$', multiLine: true)));
+      // Order is load-bearing: checkout's reset (untracked-file cleanup on
+      // an existing repo) below the downloads could wipe dist/ on a
+      // reused workspace and ship a release with changelog but no
+      // binaries. A comment alone would fail no CI — this pin does.
+      final checkout = publish.indexOf('actions/checkout@v7');
+      expect(checkout, greaterThanOrEqualTo(0));
+      for (final artifact in [
+        'name: android-dist',
+        'name: linux-dist',
+        'name: appimage-dist',
+        'name: windows-dist',
+        'name: web-dist',
+        'name: snap-dist',
+      ]) {
+        expect(checkout, lessThan(publish.indexOf(artifact)));
+      }
+      final mkdir = publish.indexOf('mkdir -p dist');
+      expect(checkout, lessThan(mkdir));
+      expect(mkdir, lessThan(publish.indexOf('orhun/git-cliff-action@v4')));
     });
   });
 

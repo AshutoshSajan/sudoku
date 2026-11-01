@@ -326,6 +326,103 @@ jobs:
         with:
           name: web-dist
           path: dist/
+      # GitHub Pages mirror (CONVENTIONS.md §6): the project site serves
+      # under /sudoku/, so rebuild with the matching --base-href — the
+      # root-based build above would 404 every asset there. Kept after the
+      # zip step so both variants come from the same commit; the second
+      # build reuses the compiled kernel cache, so it is the cheap leg.
+      - run: flutter build web --release --base-href="/sudoku/"
+      - run: |
+          mkdir -p site && cp -r build/web/. site/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: gh-pages-site
+          path: site/
+
+  deploy-gh-pages:
+    # The second hosted mirror of the release: the web app on GitHub
+    # Pages. Same release moment as deploy-web — ONLY a pushed `v*` tag
+    # deploys; dispatches build but stop here. Requires the repo's
+    # Settings → Pages → Build source = "GitHub Actions" (flip once;
+    # until then this job fails loudly with that hint).
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [resolve-version, publish]
+    runs-on: ubuntu-24.04
+    # deploy-pages publishes through the pages environment and the
+    # github-actions OIDC token — both are required by the action itself.
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    # Pages deploys are serialized repo-wide, not per-run like the rest of
+    # the release: two tag pushes must publish in tag order, not race.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: gh-pages-site
+          path: site/
+      # Loud pre-check: fails with Pages' own error when the source is not
+      # "GitHub Actions" yet, instead of a failure half a pipeline later.
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+  deploy-web:
+    # The release moment, continued: once the GitHub Release is out, the
+    # hosted web site follows it via Netlify's build hook.
+    #
+    # A build hook instead of Netlify's Git integration, because a tag is
+    # not a branch: Netlify builds the branch it is pointed at (main), and
+    # it offers no "deploy when a tag lands" trigger. Tags are cut on the
+    # newest `[skip ci]`-free merge commit (CONVENTIONS.md §6), so a hook —
+    # which rebuilds main's tip — ships the tagged merge commit plus (in
+    # the steady case) the changelog bot's `[skip ci]` fix-up: no app-code
+    # delta. If a trunk merge snuck in between tag cut and this POST, the
+    # site can ship newer-than-tagged code — tag and let this run promptly.
+    # netlify.toml's ignore command keeps every git-triggered build
+    # skipped, so this POST is the only way the site republishes.
+    #
+    # Dispatches must not repoint production hosting: the tag-shaped `if`
+    # guards the job directly. Job-level env rather than a step `if` on
+    # `secrets`: GitHub rejects `secrets` inside step `if` outright
+    # (actions/runner#520) — the guard below therefore checks the env copy.
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [resolve-version, publish]
+    runs-on: ubuntu-24.04
+    env:
+      VERSION: ${{ needs.resolve-version.outputs.version }}
+      NETLIFY_DEPLOY_HOOK_URL: ${{ secrets.NETLIFY_DEPLOY_HOOK_URL }}
+    steps:
+      - name: Require the deploy hook
+        # Fail before anything is posted: an unset secret must be loud now,
+        # not a silent "the site never updates" later. Re-running the job
+        # after adding the secret deploys in one pass.
+        if: env.NETLIFY_DEPLOY_HOOK_URL == ''
+        run: |
+          echo '::error title=Deploy hook missing::set the secret on the repo (Settings > Secrets and variables > Actions).'
+          echo '::error::NETLIFY_DEPLOY_HOOK_URL — Site settings > Build & deploy > Build hooks > Add build hook (name it "v* release", scope Production).'
+          echo '::error::NETLIFY_DEPLOY_HOOK_URL is unset.'
+          exit 1
+      - name: Deploy web (Netlify build hook)
+        # A 200 means the Production build is queued, not finished — a
+        # broken web build fails in Netlify's build log and publishes
+        # nothing, leaving the previous release live; re-run this job to
+        # re-POST. No artifact is uploaded: Netlify rebuilds main's tip
+        # itself.
+        run: |
+          echo "Netlify: deploying $VERSION (main @ $GITHUB_SHA)"
+          curl -fsS --max-time 60 --retry 3 --retry-delay 2 -X POST -d '{}' "$NETLIFY_DEPLOY_HOOK_URL" > /dev/null
+          echo 'Netlify build queued (hook accepted).'
 
   build-snap:
     needs: resolve-version
@@ -379,6 +476,17 @@ jobs:
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
     steps:
+      # git-cliff needs history to bound the release range and the tags to
+      # stamp the section — release-day cost only (~seconds). It runs
+      # FIRST on purpose: actions/checkout cleans untracked files by
+      # default, so a checkout below the artifact steps could wipe every
+      # downloaded dist/ binary. Today that only can't happen because the
+      # workspace is fresh on ephemeral runners — an implementation
+      # detail, not a contract; ordering makes the safety structural.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
       # One download per artifact with continue-on-error: a failed or
       # skipped build leaves no artifact, and that must not fail this job.
       - uses: actions/download-artifact@v8
@@ -411,6 +519,25 @@ jobs:
         with:
           name: snap-dist
           path: dist
+      - run: mkdir -p dist
+      - name: Render the release changelog (git-cliff)
+        # CHANGELOG.md in the repo is written ONLY by ci.yaml's bot on
+        # main pushes; the release itself carries the freshly rendered
+        # section as a per-release asset — no trunk writes here, `dist/*`
+        # uploads it via the existing Release files glob and SHA256SUMS.
+        # Same action as ci.yaml's bot, because the runner has no git-cliff
+        # binary preinstalled; OUTPUT points the render at the asset path
+        # and --latest bounds it to the tagged release's section.
+        # continue-on-error keeps one failed render from voiding the
+        # release while still painting the step red (re-run publishes it).
+        continue-on-error: true
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --github-token ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OUTPUT: dist/CHANGELOG-v${{ env.VERSION }}.md
       - run: |
           ls -R dist
           # Single top-level copy for the release page (per-artifact copies

@@ -37,6 +37,12 @@ jobs:
       - run: flutter analyze
       - run: flutter test
 
+  # CHANGELOG.md has exactly one writer: this job, in CI, on `main`
+  # pushes only (= release promos). `dev` never carries changelog commits,
+  # so pulls on task branches and dev stay changelog-free. The file is
+  # linked by fdroid/com.ashutoshsajan.sudoku.yml (F-Droid metadata), so
+  # it must stay committed — the release run additionally ships the fresh
+  # section as a per-version asset (release.yaml), no trunk writes there.
   changelog:
     needs: verify
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
