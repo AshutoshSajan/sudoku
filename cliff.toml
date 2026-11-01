@@ -1,6 +1,9 @@
 # git-cliff configuration — Conventional Commits changelog.
-# Preview:  git cliff --unreleased
-# Regenerate: git cliff -o CHANGELOG.md   (CI does this on every main push)
+# CHANGELOG.md is a CI-only product (CONVENTIONS.md §3): ci.yaml's bot
+# regenerates the full file on `main` pushes, and release.yaml renders
+# `--latest` into the per-release Release asset (CHANGELOG-vX.Y.Z.md).
+# Locally, rendering is a read-only preview only:
+#   git cliff --unreleased
 
 [changelog]
 header = """

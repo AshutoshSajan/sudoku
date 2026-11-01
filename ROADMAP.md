@@ -41,6 +41,14 @@ Status, todos, and working notes. Product facts live in the
   build hook in the Netlify UI, then add the secret), so the web site stays
   frozen until that is done; `netlify.toml`'s `ignore` command already
   skips all git-triggered builds, so merges to main are inert meanwhile.
+- Changelog CI-only: pulls on `dev` regenerated `CHANGELOG.md` because
+  `.githooks/post-merge` rendered git-cliff locally after every merge
+  (the Oct-9 bot commits visible in dev history are pre-split residue —
+  the bot itself has always been main-only). Fix: the hook renders
+  nothing anymore; changelog truth = the bot writes the committed file
+  on `main` pushes (file stays committed — F-Droid metadata links it),
+  and release.yaml ships `CHANGELOG-vX.Y.Z.md` as a Release asset
+  (git-cliff-action `--latest`).
 - Web-deploy hardening (from the PR review): `tool/netlify-build.sh` should
   inject `--build-name` from the newest `v*` tag (`git describe --tags
   --abbrev=0 --match 'v*'`) to match `release.yaml`'s builds, and

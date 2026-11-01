@@ -508,6 +508,31 @@ jobs:
         with:
           name: snap-dist
           path: dist
+      # git-cliff needs history to bound the release range and the tags to
+      # stamp the section — release-day cost only (~seconds).
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - run: mkdir -p dist
+      - name: Render the release changelog (git-cliff)
+        # CHANGELOG.md in the repo is written ONLY by ci.yaml's bot on
+        # main pushes; the release itself carries the freshly rendered
+        # section as a per-release asset — no trunk writes here, `dist/*`
+        # uploads it via the existing Release files glob and SHA256SUMS.
+        # Same action as ci.yaml's bot, because the runner has no git-cliff
+        # binary preinstalled; OUTPUT points the render at the asset path
+        # and --latest bounds it to the tagged release's section.
+        # continue-on-error keeps one failed render from voiding the
+        # release while still painting the step red (re-run publishes it).
+        continue-on-error: true
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --github-token ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OUTPUT: dist/CHANGELOG-v${{ env.VERSION }}.md
       - run: |
           ls -R dist
           # Single top-level copy for the release page (per-artifact copies
